@@ -3,21 +3,16 @@ infile = open("//Users/JarradPerusic/Desktop/data/raman_01.txt", "r")
 
 ## declaration of variables used in the process
 waves = [] ## holds wavelength name values
+spectra1 = [] ## empty list to hold spectra 1 values
+spectra2 = [] ## empty list to hold spectra 2 values
+spectra1List = [] ## empty list to hold all average values for spectra 1
+spectra2List = [] ## empty list to hold all average values for spectra 2
+finalWaves = [] ## holds shifted wavelength values
+finalSpectra1 = [] ## holds normalised spectra1 values
+finalSpectra2 = [] ## holds normalised spectra2 values
 counter = 0 ## holds value used to determine the number of unique wavelength names
-n1 = [] ## empty list to hold spectra 1 values
-n2 = [] ## empty list to hold spectra 2 values
-n1Total = 0 ## holds the sum of values in n1 list
-n1Average=0 ## holds average for values in n1 list
-n1List = [] ## empty list to hold all average values for spectra 1
-n2Total = 0 ## holds the sum of values in n2 list
-n2Average=0 ## holds average for values in n2 list
-n2List = [] ## empty list to hold all average values for spectra 2
 occurance = 0 ## holds value used to determine the number of frames in the file
 frames = 0 ## holds value used to store number of frames from the file
-finalWaves = [] ## holds shifted wavelength values
-waveSection1 = 0 ## holds first section of wavelength for shift
-waveSection2= 0 ## holds second section of wavelength for shift
-
 
 ## imported file titled data
 data = infile.readlines()
@@ -36,35 +31,34 @@ while counter < len(waveList):
     for line in data: 
         
         ## if first three characters of the line are equal to the referenced wave length name
-        
+        ## add that lines spectra values to the relevant list 
+        ## increase the occurances of matching lines
         if line[:7]==waveList[counter]:
-            ## add that lines spectra values to the relevant list and increase the occurances of matching lines
-            n1.append(int(line[8:11]))
-            ##n2.append(int(line[8:11]))
+            spectra1.append(int(line[8:11]))
+            #spectra2.append(int(line[8:11]))
             occurance = occurance + 1  
     
     ## if there was a match found during the if loop
+    ## add together all the values that were found to get the total
+    ## find the average value of all instances found and round to 1 decimal point
+    ## add the average values to a list with the other average values found
     if occurance > 0:
+        spectra1Total=int(sum(spectra1))
+        spectra1Average=round(spectra1Total/occurance, 1)
+        spectra1List.append(spectra1Average)
 
-        ## add together all the values that were found to get the total
-        ## find the average value of all instances found and round to 1 decimal point
-        ## add the average values to a list with the other average values found
-        n1Total=int(sum(n1))
-        n1Average=round(n1Total/occurance, 1)
-        n1List.append(n1Average)
-
-        ## n2Total=int(sum(n2))
-        ## n2Average=round(n2Total/occurance, 1)
-        ## n2List.append(n2Average)
+        ## spectra2Total=int(sum(spectra2))
+        ## spectra2Average=round(spectra2Total/occurance, 1)
+        ## spectra2List.append(spectra2Average)
 
     ## empty the list used to hold found values so they can be used for the next unique wavelength
-    n1 = []
-    n1Total = []
-    n1Average = []
+    spectra1 = []
+    spectra1Total = []
+    spectra1Average = []
 
-    ## n2 = []
-    ## n2Total = []
-    ## n2Average = []
+    # spectra2 = []
+    # spectra2Total = []
+    # spectra2Average = []
 
     ## if frames havent been recorded yet take the occurance value and move to frames
     if frames == 0:
@@ -90,11 +84,46 @@ while counter < len(waveList):
         ## append shifted values to a final wave list
         ## increase count by 1 to end while loop at end of list
         if waveSection1 > 0 and waveSection2 > 0:
-            normalisedWaves = ((1 / waveSection1) - (1 / waveSection2)) * 10**7
-            finalWaves.append(normalisedWaves)
+            shiftedWave = ((1 / waveSection1) - (1 / waveSection2)) * 10**7
+            shiftedWave = round(shiftedWave)
+            finalWaves.append(shiftedWave)
             counter = counter + 1
 
+
+## reset count value to 0
+counter = 0
+
+## while the counter is less than the length of spectra1List
+## for each line in spectra1List
+## check the value provided is greater than 0
+while counter < len(spectra1List):
+    for line in spectra1List: 
+        if spectra1List[counter] > 0:
+        ## run the spectraList1 values through the normalisation formula
+        ## append the rounded and normalised spectra value to a finalSpectra1 list
+        ## increase the counter by 1 to move to the next value in spectra1List
+            normalisedSpectra = (1 / frames * (spectra1List[counter]))
+            normalisedSpectra = round(normalisedSpectra,1)
+            finalSpectra1.append(normalisedSpectra)
+            counter = counter + 1
+
+## reset count value to 0
+# counter = 0
+
+## while the counter is less than the length of spectra2List
+## for each line in spectra2List
+## check the value provided is greater than 0
+# while counter < len(spectra2List):
+    # for line in spectra2List: 
+
+        ## run the spectraList1 values through the normalisation formula
+        ## append the normalised spectra value to a finalSpectra1 value list
+        ## increase the counter by 1 to move to the next value in spectra1List
+        # normalisedSpectra = (1 / frames * (spectra2List[counter]))
+        # finalSpectra2.append(normalisedSpectra)
+        # counter = counter + 1
+
 ## prints out the list generated - To test
-print(waveList, n1List) 
-print(finalWaves)
-print(waveSection1, waveSection2)
+print(finalSpectra1)
+
+
