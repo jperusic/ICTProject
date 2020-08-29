@@ -1,5 +1,7 @@
 ## Open raman file target
+## imported file titled data
 infile = open("//Users/JarradPerusic/Desktop/data/raman_01.txt", "r")
+data = infile.readlines()
 
 ## declaration of variables used in the process
 waves = [] ## holds wavelength name values
@@ -14,22 +16,16 @@ counter = 0 ## holds value used to determine the number of unique wavelength nam
 occurance = 0 ## holds value used to determine the number of frames in the file
 frames = 0 ## holds value used to store number of frames from the file
 
-## imported file titled data
-data = infile.readlines()
-
 ## for each line of the imported file
+## add the first three characters in the line to waveList and remove duplicate values
 for line in data: 
-    
-    ## add the first three characters in the line to waveList and remove duplicate values
     waves.append(line[:7])
     waveList = list(dict.fromkeys(waves))
 
 ## while count is less than the length of the waveList 
+## for each line of the imported file
 while counter < len(waveList):
-    
-    ## for each line of the imported file
     for line in data: 
-        
         ## if first three characters of the line are equal to the referenced wave length name
         ## add that lines spectra values to the relevant list 
         ## increase the occurances of matching lines
@@ -51,14 +47,9 @@ while counter < len(waveList):
         ## spectra2Average=round(spectra2Total/occurance, 1)
         ## spectra2List.append(spectra2Average)
 
-    ## empty the list used to hold found values so they can be used for the next unique wavelength
+    ## empty the list used to hold found values so they can be used for the next value
     spectra1 = []
-    spectra1Total = []
-    spectra1Average = []
-
     # spectra2 = []
-    # spectra2Total = []
-    # spectra2Average = []
 
     ## if frames havent been recorded yet take the occurance value and move to frames
     if frames == 0:
@@ -66,7 +57,6 @@ while counter < len(waveList):
 
     occurance = 0 ## reverts occurance count to zero
     counter = counter + 1 ## increase count to search for next wavelength
-
 
 ## reset count value to 0
 counter = 0
@@ -78,7 +68,6 @@ while counter < len(waveList):
     for line in waveList: 
         waveSection1 = int(line[:3])
         waveSection2 = int(line[4:7])
-
         ## check the values provided are both greater than 0
         ## runs the sections through the shift equation provided
         ## append shifted values to a final wave list
@@ -89,7 +78,6 @@ while counter < len(waveList):
             finalWaves.append(shiftedWave)
             counter = counter + 1
 
-
 ## reset count value to 0
 counter = 0
 
@@ -99,9 +87,9 @@ counter = 0
 while counter < len(spectra1List):
     for line in spectra1List: 
         if spectra1List[counter] > 0:
-        ## run the spectraList1 values through the normalisation formula
-        ## append the rounded and normalised spectra value to a finalSpectra1 list
-        ## increase the counter by 1 to move to the next value in spectra1List
+            ## run the spectraList1 values through the normalisation formula
+            ## append the rounded and normalised spectra value to a finalSpectra1 list
+            ## increase the counter by 1 to move to the next value in spectra1List
             normalisedSpectra = (1 / frames * (spectra1List[counter]))
             normalisedSpectra = round(normalisedSpectra,1)
             finalSpectra1.append(normalisedSpectra)
@@ -115,7 +103,6 @@ while counter < len(spectra1List):
 ## check the value provided is greater than 0
 # while counter < len(spectra2List):
     # for line in spectra2List: 
-
         ## run the spectraList1 values through the normalisation formula
         ## append the normalised spectra value to a finalSpectra1 value list
         ## increase the counter by 1 to move to the next value in spectra1List
@@ -125,5 +112,3 @@ while counter < len(spectra1List):
 
 ## prints out the list generated - To test
 print(finalSpectra1)
-
-
