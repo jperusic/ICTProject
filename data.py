@@ -3,7 +3,7 @@
 ## imported file titled data
 ## close the in file
 inFile = open("//Users/JarradPerusic/Desktop/data/raman_01.txt", "r")
-fileName = "raman_01_normalised.txt" ## need to revert from hardcode
+fileName = inFile.name[-12:-4] + "_normalised.txt" 
 data = inFile.readlines()
 inFile.close
 
@@ -87,11 +87,10 @@ while counter < len(waveList):
     counter = counter + 1 ## increase count to search for next wavelength
 
 ## reset count value to 0
-counter = 0
-
 ## while the counter is less than the length of the waveList
 ## for each line in the waveList
 ## define first/second part of wavelength to perform shift
+counter = 0
 while counter < len(waveList):
     for line in waveList: 
         waveSection1 = int(line[:3]) ## need to rever from hardcode
@@ -155,38 +154,35 @@ while counter < len(spectra3List):
 ## for each line in finalWaves and finalSpectra1
 ## write wave length name followed by a space followed by the spectra value to each line 
 outFile = open(fileName, "w")
-## if only 1 spectra value
+## if one spectra value
 if finalSpectra1 != [] and finalSpectra2 == []:
     for (waveData,spectra1Data) in zip(finalWaves,finalSpectra1):
         outFile.write(str(waveData))
-        outFile.write(" ")
+        outFile.write(",")
         outFile.write(str(spectra1Data))
         outFile.write("\n")
 ## if two spectra values
 if finalSpectra1 != [] and finalSpectra2 != [] and finalSpectra3 == []:
     for (waveData,spectra1Data,spectra2Data) in zip(finalWaves,finalSpectra1,finalSpectra2):
         outFile.write(str(waveData))
-        outFile.write(" ")
+        outFile.write(",")
         outFile.write(str(spectra1Data))
-        outFile.write(" ")
+        outFile.write(",")
         outFile.write(str(spectra2Data))
         outFile.write("\n") 
 ## if three spectra values
 if finalSpectra1 != [] and finalSpectra2 != [] and finalSpectra3 != []:
     for (waveData,spectra1Data,spectra2Data,spectra3Data) in zip(finalWaves,finalSpectra1,finalSpectra2,finalSpectra3):
         outFile.write(str(waveData))
-        outFile.write(" ")
+        outFile.write(",")
         outFile.write(str(spectra1Data))
-        outFile.write(" ")
+        outFile.write(",")
         outFile.write(str(spectra2Data))
-        outFile.write(" ")
+        outFile.write(",")
         outFile.write(str(spectra3Data))
         outFile.write("\n")          
-## if the final lists dont contain data, print out error message
-else:
-    outFile.write("There has been an error. Please contact technical support.")
+## if the final lists dont contain data, print out error message - cannot contain a ","
+if waveData == []:
+    outFile.write("Data is corrupt. Please contact technical support.")
 ##close the outfile
 outFile.close
-
-## prints out the list generated - To test
-print(finalWaves)
