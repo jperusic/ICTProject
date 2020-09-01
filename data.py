@@ -1,12 +1,15 @@
+## import libraries for specifying the dynamic file path
+import os.path
+
 ## Open  file target
 ## specify file name to be used when writing out new data
 ## imported file titled data
 ## close the in file
-inFile = open("//Users/JarradPerusic/Desktop/data/raman_01.txt", "r")
+inFile = open("//Users/JarradPerusic/Desktop/ICTCode/data/raman_01.txt", "r")
 fileName = inFile.name[-12:-4] + "_normalised.txt" 
 data = inFile.readlines()
 inFile.close
-
+   
 ## declaration of variables used in the process
 waves = [] ## holds wavelength name values
 finalWaves = [] ## holds shifted wavelength values
@@ -29,6 +32,25 @@ finalSpectra3 = [] ## holds normalised spectra values
 counter = 0 ## holds value used to determine the number of unique wavelength names
 occurance = 0 ## holds value used to determine the number of frames in the file
 frames = 0 ## holds value used to store number of frames from the file
+
+## prompt user to enter an offset used to shift the wavelength - warns of the need to be numeric
+shiftInput = input("Enter the offset used to shift wavelength. Please note: Needs to be a numeric value. Please enter your selection here: ")
+## if the user enters a valid number
+## use this entry as a float as the shift offset
+if shiftInput.isnumeric():
+    shiftInput = float(shiftInput)
+## if the user doesnt enter a valid number
+## have them re enter the value - warn another error will result in use of default offset of 1
+else:
+    shiftInput = input("You did not enter a numeric value, another incorrect entry will result in default offset of 1 being used. Please enter a numeric offset to shift wavelength: ")        
+    ## if the user enters a valid number
+    ## use this entry as a float as the shift offset
+    if shiftInput.isnumeric():
+        shiftInput = float(shiftInput)
+    ## if the user doesnt enter a valid number
+    ## used the default offset of 1 as the shift offset
+    else:
+        shiftInput = float(1) 
 
 ## for each line of the imported file
 ## add the first three characters in the line to waveList and remove duplicate values
@@ -89,21 +111,16 @@ while counter < len(waveList):
 ## reset count value to 0
 ## while the counter is less than the length of the waveList
 ## for each line in the waveList
-## define first/second part of wavelength to perform shift
 counter = 0
 while counter < len(waveList):
     for line in waveList: 
-        waveSection1 = int(line[:3]) ## need to rever from hardcode
-        waveSection2 = int(line[4:7]) ## need to rever from hardcode
-        ## check the values provided are both greater than 0
-        ## runs the sections through the shift equation provided
-        ## append shifted values to a final wave list
+        ## runs the wavlength through the shift equation using the shift offset provided by user upon load
+        ## append rounded, shifted values to a final wave list
         ## increase count by 1 to end while loop at end of list
-        if waveSection1 > 0 and waveSection2 > 0:
-            shiftedWave = ((1 / waveSection1) - (1 / waveSection2)) * 10**7
-            shiftedWave = round(shiftedWave)
-            finalWaves.append(shiftedWave)
-            counter = counter + 1
+        shiftedWave = ((1 / shiftInput) - (1 / float(line))) * 10**7
+        shiftedWave = round(shiftedWave,2)
+        finalWaves.append(shiftedWave)
+        counter = counter + 1
 
 ## reset count value to 0
 ## while the counter is less than the length of spectra1List - if empty is 0 and = counter
@@ -149,11 +166,14 @@ while counter < len(spectra3List):
         finalSpectra3.append(normalisedSpectra)
         counter = counter + 1        
 
-## create new txt file with filename with _condensed added to end
+## save location (plot folder) specified and added to the file name on hand
+## create new txt file with filename with _condensed added to end at the file path
 ## if the final lists hold data
 ## for each line in finalWaves and finalSpectra1
-## write wave length name followed by a space followed by the spectra value to each line 
-outFile = open(fileName, "w")
+## write wave length name followed by a "," followed by the spectra value to each line 
+savePath = "//Users/JarradPerusic/Desktop/ICTCode/plot"
+saveName = os.path.join(savePath,fileName)
+outFile = open(saveName, "w")
 ## if one spectra value
 if finalSpectra1 != [] and finalSpectra2 == []:
     for (waveData,spectra1Data) in zip(finalWaves,finalSpectra1):
