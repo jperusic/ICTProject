@@ -5,7 +5,7 @@ import os.path
 ## specify file name to be used when writing out new data
 ## imported file titled data
 ## close the in file
-inFile = open("//Users/JarradPerusic/Desktop/ICTCode/data/raman_01.txt", "r")
+inFile = open(r'C:\Users\JordanWinter\Documents\GitHub\ICTProject\raman_01.txt')
 fileName = inFile.name[-12:-4] + "_normalised.txt" 
 data = inFile.readlines()
 inFile.close
@@ -171,7 +171,7 @@ while counter < len(spectra3List):
 ## if the final lists hold data
 ## for each line in finalWaves and finalSpectra1
 ## write wave length name followed by a "," followed by the spectra value to each line 
-savePath = "//Users/JarradPerusic/Desktop/ICTCode/plot"
+savePath = (r'C:\Users\JordanWinter\Documents\GitHub\ICTProject')
 saveName = os.path.join(savePath,fileName)
 outFile = open(saveName, "w")
 ## if one spectra value
