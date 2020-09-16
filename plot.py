@@ -54,26 +54,26 @@ def plot(fp):
         ## Plot the wavelength and spectra values with their labels
         if valuesToPlot==2:
             ## Options for line plot vs. scatter plot - Scatter in use   
-            #plt.plot(w,s1, label="Spectra")
-            plt.scatter(w,s1, label="Spectra")
+            #plt.plot(w,s1, label="Spectra, linewidths=1")
+            plt.scatter(w,s1, label="Spectra", linewidths=1)
             plt.title('Spectra Reading for ' + fileName[:8])
         ## If two spectra value exist
         if valuesToPlot==3:
             ## Options for line plot vs. scatter plot - Scatter in use   
-            #plt.plot(w,s1, label="Spectra 1")
-            #plt.plot(s2, label="Spectra 2")
-            plt.scatter(w,s1, label="Spectra 1")
-            plt.scatter(s2, label="Spectra 2")
+            #plt.plot(w,s1, label="Spectra 1, linewidths=1")
+            #plt.plot(s2, label="Spectra 2, linewidths=1")
+            plt.scatter(w,s1, label="Spectra 1", linewidths=1)
+            plt.scatter(s2, label="Spectra 2", linewidths=1)
             plt.title('Spectra Reading for ' + fileName[:8])
         ## If three spectra value exist
         if valuesToPlot==4:
             ## Options for line plot vs. scatter plot - Scatter in use   
-            #plt.plot(w,s1, label="Spectra 1")
-            #plt.plot(s2, label="Spectra 2")
-            #plt.plot(s3, label="Spectra 3")
-            plt.scatter(w,s1, label="Spectra 1")
-            plt.scatter(s2, label="Spectra 2")
-            plt.scatter(s3, label="Spectra 3")
+            #plt.plot(w,s1, label="Spectra 1, linewidths=1")
+            #plt.plot(s2, label="Spectra 2, linewidths=1")
+            #plt.plot(s3, label="Spectra 3, linewidths=1")
+            plt.scatter(w,s1, label="Spectra 1", linewidths=1)
+            plt.scatter(s2, label="Spectra 2", linewidths=1)
+            plt.scatter(s3, label="Spectra 3", linewidths=1)
             plt.title('Spectra Reading for ' + fileName[:8])
 
         plt.xlabel('Wavelength') ## Title for the X axis   
