@@ -1,18 +1,29 @@
 ## Import the libraries for plotting and data reading
 import matplotlib.pyplot as plt
 import csv
+from tkinter.filedialog import askopenfilename
 
-## The below code before the definition of the plot function will not be needed in the final version,
-## The GUI will eventually handle this, but this is just for testing purposes for now
-## Opens the file target
-## Specifies the file name to be used when writing out new data
-## Imports the file into a variable labelled 'data'
-## Closes the file
-inFile = open(r'C:\Users\JordanWinter\Documents\GitHub\ICTProject\raman_01_normalised.txt')
-fileName = inFile.name[-23:-15] + "_normalised_graph.txt" 
-data = inFile.read().splitlines()
-inFile.close
+ ## Using tkinter, allow a popup box to select the file
+path = askopenfilename()
 
+    ## Making sure that the file has '_normalised.txt' at the end
+    ## If it does not, it will loop until the user selects one that does
+while path[-15:] != "_normalised.txt":
+    print("File selected is not a normalised raman file. Please select another")
+    path = askopenfilename()
+
+    ## Once valid file has been selected, open it into the inFile variable
+    ## Create a new filename for the graph
+    ## Split each of the lines
+    ## Then close the file
+else:
+    inFile = open(path)
+    fileName = inFile.name[-23:-15] + "_normalised_graph.txt" 
+    data = inFile.read().splitlines()
+    inFile.close
+
+
+## Definition of the plot function
 def plot(fp):
 
     ## Declaration of the variables used in the process
@@ -45,7 +56,7 @@ def plot(fp):
                 s3.append(float(row[3]))
                 valuesToPlot = 4
 
-    ## If there is plottable data 
+## If there is plottable data 
     if valuesToPlot > 0:
         ## If data is present, but processing error 
         if valuesToPlot==1:
@@ -53,18 +64,27 @@ def plot(fp):
         ## If one spectra value exists
         ## Plot the wavelength and spectra values with their labels
         if valuesToPlot==2:
-            plt.plot(w,s1, label="Spectra")
+            ## Options for line plot vs. scatter plot - Scatter in use   
+            #plt.plot(w,s1, label="Spectra, linewidths=1")
+            plt.scatter(w,s1, label="Spectra", linewidths=1)
             plt.title('Spectra Reading for ' + fileName[:8])
         ## If two spectra value exist
         if valuesToPlot==3:
-            plt.plot(w,s1, label="Spectra 1")
-            plt.plot(s2, label="Spectra 2")
+            ## Options for line plot vs. scatter plot - Scatter in use   
+            #plt.plot(w,s1, label="Spectra 1, linewidths=1")
+            #plt.plot(s2, label="Spectra 2, linewidths=1")
+            plt.scatter(w,s1, label="Spectra 1", linewidths=1)
+            plt.scatter(s2, label="Spectra 2", linewidths=1)
             plt.title('Spectra Reading for ' + fileName[:8])
         ## If three spectra value exist
         if valuesToPlot==4:
-            plt.plot(w,s1, label="Spectra 1")
-            plt.plot(s2, label="Spectra 2")
-            plt.plot(s3, label="Spectra 3")
+            ## Options for line plot vs. scatter plot - Scatter in use   
+            #plt.plot(w,s1, label="Spectra 1, linewidths=1")
+            #plt.plot(s2, label="Spectra 2, linewidths=1")
+            #plt.plot(s3, label="Spectra 3, linewidths=1")
+            plt.scatter(w,s1, label="Spectra 1", linewidths=1)
+            plt.scatter(s2, label="Spectra 2", linewidths=1)
+            plt.scatter(s3, label="Spectra 3", linewidths=1)
             plt.title('Spectra Reading for ' + fileName[:8])
 
         plt.xlabel('Wavelength') ## Title for the X axis   

@@ -1,16 +1,25 @@
 ## Import libraries for specifying the dynamic file path
 import os.path
+from tkinter.filedialog import askopenfilename
 
-## The below code before the definition of the plot function will not be needed in the final version,
-## The GUI will eventually handle this, but this is just for testing purposes for now
-## Opens the file target
+## The below code before the definition of the plot function may not be needed in the final version,
+## The GUI should eventually handle this, but this is just for testing purposes for now
+## Gets the user to select the file and writes the path to the 'path' variable
+## Opens the file target selected by the user
 ## Specifies the file name to be used when writing out new data
 ## Imports the file into a variable labelled 'data'
 ## Closes the file
-inFile = open(r'C:\Users\JordanWinter\Documents\GitHub\ICTProject\raman_01.txt')
-fileName = inFile.name[-12:-4] + "_normalised.txt" 
-data = inFile.readlines()
-inFile.close
+path = askopenfilename()
+
+while "raman" not in path or "normalised" in path:
+        print("File selected is either not a raman file or is already normalised. Please select another")
+        path = askopenfilename()
+
+else:
+    inFile = open(path)
+    fileName = inFile.name[-12:-4] + "_normalised.txt" 
+    data = inFile.readlines()
+    inFile.close
 
 ## Prompts the user to enter an offset used to shift the wavelength - warns of the need to be numeric
 shiftInput = input("Enter the offset used to shift wavelength. Please note: Needs to be a numeric value. Please enter your selection here: ")
