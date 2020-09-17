@@ -65,119 +65,123 @@ def process(fp, shiftInput):
     occurance = 0 ## Holds value used to determine the number of frames in the file
     frames = 0 ## Holds value used to store number of frames from the file
 
-    ## For each line of the imported file
-    ## Add the first three characters in the line to waveList and remove duplicate values
-    for line in data: 
-        waves.append(line[:7]) ## need to rever from hardcode
+
+## while counter is less than length of data, for each line
+## split line by white space and append it to a wave list
+## remove duplicate values from the list and increase the count
+while counter < len(data):
+    for line in data:
+        thisLine = data[counter].split()
+        waves.append(thisLine[0])
         waveList = list(dict.fromkeys(waves))
-
-    ## While count is less than the length of the waveList 
-    ## For each line of the imported file
-    while counter < len(waveList):
-        for line in data: 
-            ## If first three characters of the line are equal to the referenced wave length name
-            ## Add that lines spectra values to the relevant list 
-            ## Increase the occurances of matching lines
-            if line[:7]==waveList[counter]:
-                spectra1.append(int(line[8:11])) ## *******need to rever from hardcode*******
-                ## If two spectra values
-                if len(line) > 14:
-                    spectra2.append(int(line[12:15])) ## *******need to rever from hardcode*******
-                ## If three spectra values
-                if len(line) > 18:
-                    spectra3.append(int(line[16:19])) ## *******need to rever from hardcode*******
-                occurance = occurance + 1  
+        counter = counter + 1
         
-        ## If there was a match found during the if loop
-        ## Add together all the values that were found to get the total
-        ## Find the average value of all instances found and round to 1 decimal point
-        ## Add the average values to a list with the other average values found
-        if occurance > 0:
-            spectra1Total=int(sum(spectra1))
-            spectra1Average=round(spectra1Total/occurance, 1)
-            spectra1List.append(spectra1Average)
+## reset count, while count is less than the length of the waveList 
+## for each line split at whitespace
+## use number of values in the line to append the spectra values to the appropraiate list
+## increase occurance count by 1
+counter=0
+while counter < len(waveList):
+    for line in data:    
+        thisLine = data[counter].split()
+        if thisLine[0]==waveList[counter]:
+            spectra1.append(int(thisLine[1])) 
+            ## if there is a second spectra value found
+            if len(thisLine) > 2:
+                spectra2.append(int(thisLine[2])) 
+            ## if there is a third spectra value found    
+            if len(thisLine) > 3:
+                spectra2.append(int(thisLine[3]))  
+            occurance = occurance + 1        
+             
+    ## if there was a match found during the if loop
+    ## add together all the values that were found to get the total
+    ## find the average value of all instances found and round to 1 decimal point
+    ## add the average values to a list with the other average values found
+    if occurance > 0:
+        spectra1Total=int(sum(spectra1))
+        spectra1Average=round(spectra1Total/occurance, 1)
+        spectra1List.append(spectra1Average)
+        ## if there is a second spectra value found
+        if spectra2Total > 0:
+            spectra2Total=int(sum(spectra2))
+            spectra2Average=round(spectra2Total/occurance, 1)
+            spectra2List.append(spectra2Average)
+        ## if there is a third spectra value found
+        if spectra3Total > 0:
+            spectra3Total=int(sum(spectra3))
+            spectra3Average=round(spectra3Total/occurance, 1)
+            spectra3List.append(spectra3Average)
 
-            ## If there is a second spectra value found
-            if spectra2Total > 0:
-                spectra2Total=int(sum(spectra2))
-                spectra2Average=round(spectra2Total/occurance, 1)
-                spectra2List.append(spectra2Average)
+    ## empty the lists used to hold found values so they can be used for the next value
+    
+    spectra1 = []
+    spectra2 = []
+    spectra3 = []
 
-            ## If there is a third spectra value found
-            if spectra3Total > 0:
-                spectra3Total=int(sum(spectra3))
-                spectra3Average=round(spectra3Total/occurance, 1)
-                spectra3List.append(spectra3Average)
+    ## if frames havent been recorded yet take the occurance value and move to frames
+    if frames == 0:
+        frames = occurance
 
-        ## Empty the lists used to hold found values so they can be used for the next value
-        spectra1 = []
-        spectra2 = []
-        spectra3 = []
+    occurance = 0 ## reverts occurance count to zero
+    counter = counter + 1 ## increase count to search for next wavelength
 
-        ## If the frames haven't been recorded yet, take the occurance value and move to frames
-        if frames == 0:
-            frames = occurance
+## reset count value to 0
+## while the counter is less than the length of the waveList
+## for each line in the waveList
+counter = 0
+while counter < len(waveList):
+    for line in waveList: 
+        ## runs the wavlength through the shift equation using the shift offset provided by user upon load
+        ## append rounded, shifted values to a final wave list
+        ## increase count by 1 to end while loop at end of list
+        shiftedWave = ((1 / shiftInput) - (1 / float(line))) * 10**7
+        shiftedWave = round(shiftedWave,2)
+        finalWaves.append(shiftedWave)
+        counter = counter + 1
 
-        occurance = 0 ## Reverts occurance count to zero
-        counter = counter + 1 ## Increase counter by one to search for the next wavelength
-
-    ## Reset the counter value to 0
-    ## While the counter is less than the length of the waveList
-    ## For each line in the waveList
-    counter = 0
-    while counter < len(waveList):
-        for line in waveList: 
-            ## Runs the wavelength through the shift equation using the shift offset provided by user upon input
-            ## Append the rounded value, shifted values to a final wave list
-            ## Increase the counter by 1 to end the while loop at end of the list
-            shiftedWave = ((1 / shiftInput) - (1 / float(line))) * 10**7
-            shiftedWave = round(shiftedWave,2)
-            finalWaves.append(shiftedWave)
+## reset count value to 0
+## while the counter is less than the length of spectra1List - if empty is 0 and = counter
+## for each line in spectra1List
+## check the value provided is greater than 0
+counter = 0
+while counter < len(spectra1List):
+    for line in spectra1List: 
+        if spectra1List[counter] > 0:
+            ## round the spectra value
+            ## append the rounded and normalised spectra value to a finalSpectra1 list
+            ## increase the counter by 1 to move to the next value in spectra1List
+            normalisedSpectra = round(spectra1List[counter],1)
+            finalSpectra1.append(normalisedSpectra)
             counter = counter + 1
 
-    ## Reset the counter value to 0
-    ## While the counter is less than the length of spectra1List - if empty is 0 and = counter
-    ## For each line in spectra1List
-    ## Check the value provided is greater than 0
-    counter = 0
-    while counter < len(spectra1List):
-        for line in spectra1List: 
-            if spectra1List[counter] > 0:
-                ## Run the spectraList1 values through the normalisation formula
-                ## Append the rounded and normalised spectra value to a finalSpectra1 list
-                ## Increase the counter by 1 to move to the next value in spectra1List
-                normalisedSpectra = (1 / frames * (spectra1List[counter]))
-                normalisedSpectra = round(normalisedSpectra,1)
-                finalSpectra1.append(normalisedSpectra)
-                counter = counter + 1
+## reset count value to 0
+## while the counter is less than the length of spectra2List - if empty is 0 and = counter
+## for each line in spectra2List
+## check the value provided is greater than 0
+counter = 0
+while counter < len(spectra2List):
+    for line in spectra2List: 
+        ## round the spectra value
+        ## append the normalised spectra value to a finalSpectra1 value list
+        ## increase the counter by 1 to move to the next value in spectra1List
+        normalisedSpectra = round(spectra2List[counter],1)
+        finalSpectra2.append(normalisedSpectra)
+        counter = counter + 1
 
-    ## Reset count value to 0
-    ## While the counter is less than the length of spectra2List - if empty is 0 and = counter
-    ## For each line in spectra2List
-    ## Check the value provided is greater than 0
-    counter = 0
-    while counter < len(spectra2List):
-        for line in spectra2List: 
-            ## Run the spectraList1 values through the normalisation formula
-            ## Append the normalised spectra value to a finalSpectra1 value list
-            ## Increase the counter by 1 to move to the next value in spectra1List
-            normalisedSpectra = (1 / frames * (spectra2List[counter]))
-            finalSpectra2.append(normalisedSpectra)
-            counter = counter + 1
-
-    ## Reset counter value to 0
-    ## While the counter is less than the length of spectra3List - if empty is 0 and = counter
-    ## For each line in spectra3List
-    ## Check the value provided is greater than 0
-    counter = 0
-    while counter < len(spectra3List):
-        for line in spectra3List: 
-            ## Run the spectraList3 values through the normalisation formula
-            ## Append the normalised spectra value to a finalSpectra3 value list
-            ## Increase the counter by 1 to move to the next value in spectra3List
-            normalisedSpectra = (1 / frames * (spectra3List[counter]))
-            finalSpectra3.append(normalisedSpectra)
-            counter = counter + 1        
+## reset count value to 0
+## while the counter is less than the length of spectra3List - if empty is 0 and = counter
+## for each line in spectra3List
+## check the value provided is greater than 0
+counter = 0
+while counter < len(spectra3List):
+    for line in spectra3List: 
+        ## round the spectra value
+        ## append the normalised spectra value to a finalSpectra3 value list
+        ## increase the counter by 1 to move to the next value in spectra3List
+        normalisedSpectra = round(spectra3List[counter],1)
+        finalSpectra3.append(normalisedSpectra)
+        counter = counter + 1        
 
     ## The save location (plot folder) specified and added to the file name on hand
     ## Creates new .txt file with filename with _condensed added to the end at the specified file path
