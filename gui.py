@@ -3,15 +3,34 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import *
 from tkinter import ttk
+import data as d
+import plot as p
+##import data
+
+file1 = ''
+
+##from data.py import process
 
 ## test script to test function of buttons
 def testScript():
         messagebox.showinfo("Hello", "Wazzup")
 
+def importFunction():
+    file1 = d.importData()
+
+def normaliseFunction():
+    d.process(importFunction)
+
+def importReadyDataFunction():
+    p.importReadyData()
+
+def plotFunction():
+    p.plot(importReadyDataFunction)
+
 ## new tkinter window - labelled window
 ## title and size of window set
 window = tk.Tk()
-window.geometry("400x400")
+window.geometry("1200x800")
 window.title("Raman Plotter")
 
 ## tabs will use notebook format
@@ -44,16 +63,16 @@ tabControl.pack(expand=1, fill="both")
 ## create button to import raw data files
 ## create button to normalise selected raw data files
 ## display buttons on raw tab (top row)
-importRaw = tk.Button(rawTop, text="Import Raw Data", command=testScript)
-normaliseData = tk.Button(rawTop, text="Normalise Data", command=testScript)
+importRaw = tk.Button(rawTop, text="Import Raw Data", command=importFunction)
+normaliseData = tk.Button(rawTop, text="Normalise Data", command=normaliseFunction)
 importRaw.pack()
 normaliseData.pack()
 
 ## create button to import ready data files
 ## create button to plot selected ready data files
 ## display buttons on ready tab (top row)
-importReady = Button(readyTop, text="Import Ready Data", command=testScript)
-plotData = Button(readyTop, text="Plot Data", command=testScript)
+importReady = Button(readyTop, text="Import Ready Data", command=importReadyDataFunction)
+plotData = Button(readyTop, text="Plot Data", command=plotFunction)
 importReady.pack()
 plotData.pack()
 
@@ -95,3 +114,6 @@ ready.add(readyBottom)
 plot.add(plotPreview)
 ## display the window on run
 window.mainloop()
+
+
+##importRaw
