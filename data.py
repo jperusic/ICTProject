@@ -2,7 +2,6 @@
 import os.path
 from tkinter.filedialog import askopenfilename
 
-
 ## The below code before the definition of the plot function may not be needed in the final version,
 ## The GUI should eventually handle this, but this is just for testing purposes for now
 ## Gets the user to select the file and writes the path to the 'path' variable
@@ -29,10 +28,9 @@ def importData():
     return inFile
 
 
-
 def process(fp):
 
-        ## Prompts the user to enter an offset used to shift the wavelength - warns of the need to be numeric
+    ## Prompts the user to enter an offset used to shift the wavelength - warns of the need to be numeric
     shiftInput = input("Enter the offset used to shift wavelength. Please note: Needs to be a numeric value. Please enter your selection here: ")
     ## If the user enters a valid number
     ## Use this number as a float for the shift offset
@@ -75,27 +73,32 @@ def process(fp):
     frames = 0 ## Holds value used to store number of frames from the file
 
     ## For each line of the imported file
-    ## Add the first three characters in the line to waveList and remove duplicate values
-    for line in importData.data: 
-        waves.append(line[:7]) ## need to rever from hardcode
-        waveList = list(dict.fromkeys(waves))
+    ## Split line into wavelength, spectra values
+    ## Take the wavelengths and place them in a new waves list
+    ## Add the waves list items to a waveList and remove duplicate values
+    while counter < len(importData.data):
+        for line in importData.data: 
+            thisLine = importData.data[counter].split()
+            waves.append(thisLine[0])
+            waveList = list(dict.fromkeys(waves))
+            counter = counter + 1
 
-    ## While count is less than the length of the waveList 
     ## For each line of the imported file
+    ## Split line into wavelength, spectra values
+    ## Take found spectra values and categorize into seperate lists (Supports up to 3 spectra values)
+    counter=0
     while counter < len(waveList):
         for line in importData.data: 
-            ## If first three characters of the line are equal to the referenced wave length name
-            ## Add that lines spectra values to the relevant list 
-            ## Increase the occurances of matching lines
-            if line[:7]==waveList[counter]:
-                spectra1.append(int(line[8:11])) ## *******need to rever from hardcode*******
-                ## If two spectra values
-                if len(line) > 14:
-                    spectra2.append(int(line[12:15])) ## *******need to rever from hardcode*******
-                ## If three spectra values
-                if len(line) > 18:
-                    spectra3.append(int(line[16:19])) ## *******need to rever from hardcode*******
-                occurance = occurance + 1  
+            thisLine = importData.data[counter].split()
+            if thisLine[0]==waveList[counter]:
+                spectra1.append(int(thisLine[1])) 
+                ## if 2 spectra values found
+                if len(thisLine) > 2:
+                    spectra2.append(int(thisLine[2])) 
+                ## if 3 spectra values found
+                if len(thisLine) > 3:
+                    spectra2.append(int(thisLine[3]))  
+                occurance = occurance + 1 
         
         ## If there was a match found during the if loop
         ## Add together all the values that were found to get the total
@@ -155,8 +158,7 @@ def process(fp):
                 ## Run the spectraList1 values through the normalisation formula
                 ## Append the rounded and normalised spectra value to a finalSpectra1 list
                 ## Increase the counter by 1 to move to the next value in spectra1List
-                normalisedSpectra = (1 / frames * (spectra1List[counter]))
-                normalisedSpectra = round(normalisedSpectra,1)
+                normalisedSpectra = round(spectra1List[counter],1)
                 finalSpectra1.append(normalisedSpectra)
                 counter = counter + 1
 
@@ -170,7 +172,7 @@ def process(fp):
             ## Run the spectraList1 values through the normalisation formula
             ## Append the normalised spectra value to a finalSpectra1 value list
             ## Increase the counter by 1 to move to the next value in spectra1List
-            normalisedSpectra = (1 / frames * (spectra2List[counter]))
+            normalisedSpectra = round(spectra2List[counter],1)
             finalSpectra2.append(normalisedSpectra)
             counter = counter + 1
 
@@ -184,7 +186,7 @@ def process(fp):
             ## Run the spectraList3 values through the normalisation formula
             ## Append the normalised spectra value to a finalSpectra3 value list
             ## Increase the counter by 1 to move to the next value in spectra3List
-            normalisedSpectra = (1 / frames * (spectra3List[counter]))
+            normalisedSpectra = round(spectra3List[counter],1)
             finalSpectra3.append(normalisedSpectra)
             counter = counter + 1        
 
