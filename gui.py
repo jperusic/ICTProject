@@ -31,6 +31,7 @@ def plotFunction():
 ## title and size of window set
 window = tk.Tk()
 window.geometry("1080x720")
+window.minsize(720, 400)
 window.title("Raman Plotter")
 
 ## tabs will use notebook format
@@ -43,7 +44,7 @@ tabControl = ttk.Notebook(window)
 raw = ttk.PanedWindow(tabControl, orient=VERTICAL)
 rawTop = ttk.PanedWindow(tabControl, orient=HORIZONTAL)
 rawBottom = ttk.PanedWindow(tabControl, orient=HORIZONTAL)
-rawFooter = ttk.PanedWindow(tabControl, orient=HORIZONTAL)
+rawFooter = ttk.PanedWindow(tabControl, orient=HORIZONTAL, height=10)
 
 ## create layout for Ready Data tab - 2 panes flows vertically
 ## top row to hold buttons - 2 buttons flows horizontally
@@ -97,22 +98,22 @@ plotDev.pack(side=BOTTOM, pady=(0,0))
 ## create button to import raw data files
 ## create button to normalise selected raw data files
 ## display buttons on raw tab (top row)
-importRaw = Button(rawTop, text="Import Raw Data", width=20, height=2, command=importFunction, bg="blue", fg="black")
-normaliseData = Button(rawTop, text="Normalise Data", width=20, height=2, command=normaliseFunction, bg="green", fg="black")
+importRaw = Button(rawTop, text="Import Raw Data", width=20, height=2, command=importFunction, bg="blue", fg="white")
+normaliseData = Button(rawTop, text="Normalise Data", width=20, height=2, command=normaliseFunction, bg="green", fg="white")
 importRaw.pack(side=LEFT, padx=(20,10), pady=(10,0))
 normaliseData.pack(side=LEFT, padx=(10,10), pady=(10,0))
 
 ## create button to import ready data files
 ## create button to plot selected ready data files
 ## display buttons on ready tab (top row)
-importReady = Button(readyTop, text="Import Ready Data", width=20, height=2, command=importReadyDataFunction, bg="blue", fg="black")
-plotData = Button(readyTop, text="Plot Data", width=20, height=2, command=plotFunction, bg="green", fg="black")
+importReady = Button(readyTop, text="Import Ready Data", width=20, height=2, command=importReadyDataFunction, bg="blue", fg="white")
+plotData = Button(readyTop, text="Plot Data", width=20, height=2, command=plotFunction, bg="green", fg="white")
 importReady.pack(side=LEFT, padx=(20,10), pady=(10,0))
 plotData.pack(side=LEFT, padx=(10,10), pady=(10,0))
 
 ## create pane to hold the file list and a pane to display a preview of a file when selected
-rawFiles = Listbox(rawBottom, width=55, height=32)
-rawPreview = Listbox(rawBottom, width=55, height=32)
+rawFiles = Listbox(rawBottom, width=60, height=17)
+rawPreview = Listbox(rawBottom, width=60, height=17)
 
 ## create pane to hold the file list and a pane to display a preview of a file when selected
 readyFiles = Listbox(readyBottom, width=55, height=32)
@@ -131,6 +132,8 @@ for readyList in ["file1", "file2", "file3", "file4", "etc"]:
 ## add the created panes which hold and preview raw data files to the raw data tab (bottom row)
 rawBottom.add(rawFiles)
 rawBottom.add(rawPreview)
+
+
 
 ## add the created panes which hold and preview ready data files to the ready data tab (bottom row)
 readyBottom.add(readyFiles)
