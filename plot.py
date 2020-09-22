@@ -2,12 +2,14 @@
 import matplotlib.pyplot as plt
 import csv
 from tkinter.filedialog import askopenfilename
+from tkinter import messagebox
 
+# A global list holding the imported Ready Files
 listOfReadyFiles = []
 
 def importReadyData():
     ## Using tkinter, allow a popup box to select the file
-    path = askopenfilename()
+    path = askopenfilename(title="Choose a Normalised Raman File")
 
     ## Set default variables
     importReadyData.fileName = ''
@@ -16,8 +18,11 @@ def importReadyData():
         ## Making sure that the file has '_normalised.txt' at the end
         ## If it does not, it will loop until the user selects one that does
     while path[-15:] != "_normalised.txt":
-        print("File selected is not a normalised raman file. Please select another")
-        path = askopenfilename()
+        ## This code is for printing to the console
+        ##print("File selected is not a normalised raman file. Please select another")
+        ## Tkinter popup box will appear informing the user that their selection is not correct and loop to select again
+        messagebox.showinfo("Error","File selected is not a normalised raman file. Please select another")
+        path = askopenfilename(title="Choose a Normalised Raman File")
 
         ## Once valid file has been selected, open it into the inFile variable
         ## Create a new filename for the graph

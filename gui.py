@@ -5,27 +5,26 @@ from tkinter import *
 from tkinter import ttk
 import data as d
 import plot as p
-##import data
-
-file1 = ''
-
-##from data.py import process
 
 ## test script to test function of buttons
 def testScript():
         messagebox.showinfo("Hello", "Wazzup")
 
+## Import function that is binded to the 'Import Raw Data' button
 def importFunction():
-    file1 = d.importData()
+    d.importData()
     rawFiles.insert(END, d.listOfFiles[-1])
 
+## Normalise function that is binded to the 'Normalise Data' button
 def normaliseFunction():
     d.process(importFunction)
 
+## Import function that is binded to the 'Import Ready Data' button
 def importReadyDataFunction():
     p.importReadyData()
     readyFiles.insert(END, p.listOfReadyFiles[-1])
 
+## Import funtion that is binded to the 'Plot Data' button
 def plotFunction():
     p.plot(importReadyDataFunction)
 

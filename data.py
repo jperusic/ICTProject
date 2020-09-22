@@ -2,6 +2,7 @@
 import os.path
 ##import gui as g
 from tkinter.filedialog import askopenfilename
+from tkinter import messagebox
 
 ## The below code before the definition of the plot function may not be needed in the final version,
 ## The GUI should eventually handle this, but this is just for testing purposes for now
@@ -11,18 +12,26 @@ from tkinter.filedialog import askopenfilename
 ## Imports the file into a variable labelled 'data'
 ## Closes the file
 
+## Global variable to hold the list of imported raw files
 listOfFiles = []
 
-
+## Defining the function for Importing
 def importData():
 
-    path = askopenfilename()
+    ## Using tkinter, allow a popup box to select the file
+    path = askopenfilename(title="Choose a Raw Raman File")
     importData.data = 0
 
+    ## Making sure that the file has 'raman' in it, but does not have _normalised in it
+    ## If it does, it will loop until the user selects one that does not
     while "raman" not in path or "normalised" in path:
-            print("File selected is either not a raman file or is already normalised. Please select another")
-            path = askopenfilename()
+            messagebox.showinfo("Error","File selected is either not a raman file or is already normalised. Please select another")
+            ##print("File selected is either not a raman file or is already normalised. Please select another")
+            path = askopenfilename(title="Choose a Raw Raman File")
 
+    ## Once a valid file has been selected, it will open this file to inFile
+    ## Then places _normalised on the end of a new file to save the new data in
+    ## Once done, it also closes the file correctly
     else:
         inFile = open(path)
         importData.fileName = inFile.name[-12:-4] + "_normalised.txt" 
@@ -32,7 +41,7 @@ def importData():
 
     return inFile
 
-
+## Defining the function for processing/normalising the data
 def process(fp):
 
     ## Prompts the user to enter an offset used to shift the wavelength - warns of the need to be numeric
