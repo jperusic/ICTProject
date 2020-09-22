@@ -1,5 +1,6 @@
 ## Import libraries for specifying the dynamic file path
 import os.path
+##import gui as g
 from tkinter.filedialog import askopenfilename
 
 ## The below code before the definition of the plot function may not be needed in the final version,
@@ -9,6 +10,9 @@ from tkinter.filedialog import askopenfilename
 ## Specifies the file name to be used when writing out new data
 ## Imports the file into a variable labelled 'data'
 ## Closes the file
+
+listOfFiles = []
+
 
 def importData():
 
@@ -23,6 +27,7 @@ def importData():
         inFile = open(path)
         importData.fileName = inFile.name[-12:-4] + "_normalised.txt" 
         importData.data = inFile.readlines()
+        listOfFiles.append(inFile.name[-12:-4])
         inFile.close
 
     return inFile

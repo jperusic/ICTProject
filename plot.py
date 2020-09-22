@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import csv
 from tkinter.filedialog import askopenfilename
 
+listOfReadyFiles = []
 
 def importReadyData():
     ## Using tkinter, allow a popup box to select the file
@@ -26,6 +27,7 @@ def importReadyData():
         inFile = open(path)
         importReadyData.fileName = inFile.name[-23:-15] + "_normalised_graph.txt" 
         importReadyData.data = inFile.read().splitlines()
+        listOfReadyFiles.append(inFile.name[-23:-4])
         inFile.close
     return inFile
 

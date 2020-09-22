@@ -17,12 +17,14 @@ def testScript():
 
 def importFunction():
     file1 = d.importData()
+    rawFiles.insert(END, d.listOfFiles[-1])
 
 def normaliseFunction():
     d.process(importFunction)
 
 def importReadyDataFunction():
     p.importReadyData()
+    readyFiles.insert(END, p.listOfReadyFiles[-1])
 
 def plotFunction():
     p.plot(importReadyDataFunction)
@@ -100,8 +102,8 @@ rawPreview.config(yscrollcommand=rawScroll2.set)
 rawScroll2.config(command=rawPreview.yview)
 
 ## demo data to populate file lists
-for rawList in ["file1", "file2", "file3", "file4", "etc"]:
-    rawFiles.insert(END, rawList)
+##for rawList in ["file", "file2", "file3", "file4", "etc"]:
+    ##rawFiles.insert(END, rawList)
 
 ## create buttons to import ready data files and plot selected ready data files
 ## display buttons on ready tab (top row)
@@ -127,8 +129,8 @@ readyPreview.config(yscrollcommand=readyScroll2.set)
 readyScroll2.config(command=readyPreview.yview)
 
 ## demo data to populate file lists
-for readyList in ["file1", "file2", "file3", "file4", "etc"]:
-    readyFiles.insert(END, readyList)
+##for readyList in ["file1", "file2", "file3", "file4", "etc"]:
+    ##readyFiles.insert(END, readyList)
 
 ## create buttons to plot the current graph as scatter or line 
 ## display buttons on plot tab (top row)
