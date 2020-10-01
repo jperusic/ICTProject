@@ -297,7 +297,7 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
         the_raw_file_index = [fp for fp, *_ in self.data_files].index(the_raw_file)
         shift = self.data_param
 
-        from data_process import process, export_data
+        from NEW_data import process, export_data
 
         # example
         # in file: D:\some-path\001.txt
