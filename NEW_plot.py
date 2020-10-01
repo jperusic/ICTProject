@@ -31,15 +31,15 @@ class CanvasWidget(_CanvasWidget):
             wave = [i[0] for i in data]
             sp = [i[1] for i in data]
 
-            self.ax.plot(wave, sp, label='Spectra')
+            self.ax.scatter(wave, sp, label='Spectra')
 
         elif cols == 3:
             wave = [i[0] for i in data]
             sp1 = [i[1] for i in data]
             sp2 = [i[2] for i in data]
 
-            self.ax.plot(wave, sp1, label='Spectra 1')
-            self.ax.plot(wave, sp2, label='Spectra 2')
+            self.ax.scatter(wave, sp1, label='Spectra 1')
+            self.ax.scatter(wave, sp2, label='Spectra 2')
 
         elif cols == 4:
             wave = [i[0] for i in data]
@@ -47,9 +47,9 @@ class CanvasWidget(_CanvasWidget):
             sp2 = [i[2] for i in data]
             sp3 = [i[3] for i in data]
 
-            self.ax.plot(wave, sp1, label='Spectra 1')
-            self.ax.plot(wave, sp2, label='Spectra 2')
-            self.ax.plot(wave, sp3, label='Spectra 3')
+            self.ax.scatter(wave, sp1, label='Spectra 1')
+            self.ax.scatter(wave, sp2, label='Spectra 2')
+            self.ax.scatter(wave, sp3, label='Spectra 3')
 
         else:
             raise ValueError
