@@ -52,7 +52,7 @@ def process(fp, shiftInput: (int, float) = 1) -> list:
             ## ** DEBUG TOOLS **  
             ## print system progress to user in percent via terminal   
             debug = debug + 1
-            print("PROCESS 1 / 4: ", round((debug/totalToBug)*100), "%")
+            print("PROCESS 1 / 4: ", round((debug/totalToBug)*100), "% ", debug, "/", totalToBug)
             counter = counter + 1 ## increase count by 1 to move to next row
 
     ## ** RESET DEBUG TOOLS **     
@@ -110,7 +110,7 @@ def process(fp, shiftInput: (int, float) = 1) -> list:
         ## ** DEBUG TOOLS **  
         ## print system progress to user in percent via terminal  
         debug = debug + 1
-        print("PROCESS 2 / 4: ", round((debug/totalToBug)*100), "%")
+        print("PROCESS 2 / 4: ", round((debug/totalToBug)*100), "% ", debug, "/", totalToBug)
 
         counter = counter + 1 ## Increase counter by one to search for the next wavelength
 
@@ -131,7 +131,7 @@ def process(fp, shiftInput: (int, float) = 1) -> list:
             ## ** DEBUG TOOLS **  
             ## print system progress to user in percent via terminal  
             debug = debug + 1
-            print("PROCESS 3 / 4: ", round((debug/totalToBug)*100), "%")
+            print("PROCESS 3 / 4: ", round((debug/totalToBug)*100), "% ", debug, "/", totalToBug)
 
             counter = counter + 1 ## Increase counter by one to search for the next wavelength
 
@@ -154,7 +154,7 @@ def process(fp, shiftInput: (int, float) = 1) -> list:
                 ## ** DEBUG TOOLS **  
                 ## print system progress to user in percent via terminal  
                 debug = debug + 1
-                print("PROCESS 4 / 4: ", round((debug/totalToBug)*100), "%")
+                print("PROCESS 4 / 4: ", round((debug/totalToBug)*100), "% ", debug, "/", totalToBug)
 
                 counter = counter + 1 ## Increase the counter by 1 to move to the next spectra value
 
@@ -176,7 +176,7 @@ def process(fp, shiftInput: (int, float) = 1) -> list:
                 ## ** DEBUG TOOLS **  
                 ## print system progress to user in percent via terminal  
                 debug = debug + 1
-                print("PROCESSING EXTRA SPECTRA: ", round((debug/totalToBug)*100, 1), "%")
+                print("PROCESSING EXTRA SPECTRA: ", round((debug/totalToBug)*100, 1), "% ", debug, "/", totalToBug)
 
                 counter = counter + 1 ## Increase the counter by 1 to move to the next spectra value
 
@@ -198,7 +198,7 @@ def process(fp, shiftInput: (int, float) = 1) -> list:
                 ## ** DEBUG TOOLS **  
                 ## print system progress to user in percent via terminal  
                 debug = debug + 1
-                print("PROCESSING EXTRA SPECTRA: ", round((debug/totalToBug)*100, 1), "%") 
+                print("PROCESSING EXTRA SPECTRA: ", round((debug/totalToBug)*100, 1), "% ", debug, "/", totalToBug) 
                 
                 counter = counter + 1 ## Increase the counter by 1 to move to the next spectra value   
     
