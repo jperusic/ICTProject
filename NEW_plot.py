@@ -8,7 +8,6 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as _CanvasWidge
 from matplotlib.figure import Figure
 from matplotlib.backend_bases import PickEvent
 
-
 class CanvasWidget(_CanvasWidget):
     sig_picked = QtCore.pyqtSignal(int)
 
@@ -19,11 +18,7 @@ class CanvasWidget(_CanvasWidget):
 
     def plot_data(self, data: list, title: str = 'Normalised Spectra Plot'):
         """plot data"""
-
-        # todo： Please paste your plot code here
-        # ==============================================
-        # the following as example
-
+        
         row0 = data[0]
         cols = len(row0)
         self.ax.cla()
@@ -31,15 +26,17 @@ class CanvasWidget(_CanvasWidget):
             wave = [i[0] for i in data]
             sp = [i[1] for i in data]
 
-            self.ax.scatter(wave, sp, label='Spectra')
+            ## display graph as scatter with small points - easier to distinguish on graph
+            self.ax.scatter(wave, sp, label='Spectra', marker=".", linewidths=0)
 
         elif cols == 3:
             wave = [i[0] for i in data]
             sp1 = [i[1] for i in data]
             sp2 = [i[2] for i in data]
 
-            self.ax.scatter(wave, sp1, label='Spectra 1')
-            self.ax.scatter(wave, sp2, label='Spectra 2')
+            ## display graph as scatter with small points - easier to distinguish on graph
+            self.ax.scatter(wave, sp1, label='Spectra 1', marker=".", linewidths=0)
+            self.ax.scatter(wave, sp2, label='Spectra 2', marker=".", linewidths=0)
 
         elif cols == 4:
             wave = [i[0] for i in data]
@@ -47,9 +44,10 @@ class CanvasWidget(_CanvasWidget):
             sp2 = [i[2] for i in data]
             sp3 = [i[3] for i in data]
 
-            self.ax.scatter(wave, sp1, label='Spectra 1')
-            self.ax.scatter(wave, sp2, label='Spectra 2')
-            self.ax.scatter(wave, sp3, label='Spectra 3')
+            ## display graph as scatter with small points - easier to distinguish on graph
+            self.ax.scatter(wave, sp1, label='Spectra 1', marker=".", linewidths=0)
+            self.ax.scatter(wave, sp2, label='Spectra 2', marker=".", linewidths=0)
+            self.ax.scatter(wave, sp3, label='Spectra 3', marker=".", linewidths=0)
 
         else:
             raise ValueError
@@ -58,8 +56,6 @@ class CanvasWidget(_CanvasWidget):
         self.ax.set_xlabel('Spectra')
         self.ax.legend()
 
-        # end of your code
-        # ==============================================
         self.draw()
 
     def plot_clear(self):
