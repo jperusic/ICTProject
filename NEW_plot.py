@@ -16,7 +16,7 @@ class CanvasWidget(_CanvasWidget):
         super().__init__(figure)
         self.ax = figure.add_subplot(111)
 
-## This is the function for plotting a SCATTER PLOT
+## This is the function for plotting a SCATTER PLOT 
     def plot_data(self, data: list, title: str = 'Normalised Spectra Plot'):
         """plot data"""
         
