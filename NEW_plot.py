@@ -70,7 +70,7 @@ class CanvasWidget(_CanvasWidget):
             sp = [i[1] for i in data]
 
             ## display graph as scatter with small points - easier to distinguish on graph
-            self.ax.scatter(wave, sp, label='Spectra', marker=".", linewidths=0)
+            self.ax.plot(wave, sp, label='Spectra', marker=".", linewidths=0)
 
         elif cols == 3:
             wave = [i[0] for i in data]
@@ -78,8 +78,8 @@ class CanvasWidget(_CanvasWidget):
             sp2 = [i[2] for i in data]
 
             ## display graph as scatter with small points - easier to distinguish on graph
-            self.ax.scatter(wave, sp1, label='Spectra 1', marker=".", linewidths=0)
-            self.ax.scatter(wave, sp2, label='Spectra 2', marker=".", linewidths=0)
+            self.ax.plot(wave, sp1, label='Spectra 1', marker=".", linewidths=0)
+            self.ax.plot(wave, sp2, label='Spectra 2', marker=".", linewidths=0)
 
         elif cols == 4:
             wave = [i[0] for i in data]
@@ -88,9 +88,9 @@ class CanvasWidget(_CanvasWidget):
             sp3 = [i[3] for i in data]
 
             ## display graph as scatter with small points - easier to distinguish on graph
-            self.ax.scatter(wave, sp1, label='Spectra 1', marker=".", linewidths=0)
-            self.ax.scatter(wave, sp2, label='Spectra 2', marker=".", linewidths=0)
-            self.ax.scatter(wave, sp3, label='Spectra 3', marker=".", linewidths=0)
+            self.ax.plot(wave, sp1, label='Spectra 1', marker=".", linewidths=0)
+            self.ax.plot(wave, sp2, label='Spectra 2', marker=".", linewidths=0)
+            self.ax.plot(wave, sp3, label='Spectra 3', marker=".", linewidths=0)
 
         else:
             raise ValueError
@@ -104,5 +104,4 @@ class CanvasWidget(_CanvasWidget):
     def plot_clear(self):
         """clear a plot-"""
         self.ax.cla()
-        ##self.matplolib.show()
         self.draw()
