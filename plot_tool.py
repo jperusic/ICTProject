@@ -68,7 +68,7 @@ class CanvasWidget(_CanvasWidget):
             raise ValueError
         self.ax.set_title(title)
         self.ax.set_xlabel('Wavelength')
-        self.ax.set_xlabel('Spectra')
+        self.ax.set_ylabel('Spectra')
         self.ax.legend()
 
         self.draw()
