@@ -235,7 +235,68 @@ def export_data(data: list, output_path: str):
         for line in data:
             line = [str(i) for i in line]
             f.write('{}\n'.format(','.join(line)))
+            
+## function to pull labbook details for current raman file
+def display_specs():
 
+    ## NEED TO PASS FROM FP - NEEDS TO BE FOR THE FILE WHICH IS DISPLAYED CURRENTLY ON TYHE NORMALISED TAB
+    dataFile = open("C:/Users/End User/iCloudDrive/Desktop/ICTCode/data/raman_12.txt", "r")
+    thisFile = dataFile.name
+
+    ## NEED TO HAVE LIUYU CREATE NEW IMPORT SECTION FOR THIS FILE IMPORT - LABBOOK WITH READING SPECS
+    inFile = open("C:/Users/End User/iCloudDrive/Desktop/ICTCode/data/labbook-2018-10-30.txt", "r")
+    labbook = [line for line in inFile.readlines() if line.strip()]
+    inFile.close() 
+
+    ## declare variables for function to allow for loop entry
+    fileSpecs = []
+    name = 'null'
+    counter=0
+
+    ## while counter less than the number of lines in the labbook go through the lines in labbook
+    ## if the line is deemed a reading entry, split the data at the spaces, strip the punctuation.
+    ## check the first value from the split and check if it matched the inFile name, if a match allocate data to individual variables
+    while counter < len(labbook):
+        for line in labbook: 
+            if len(line) > 25:
+                thisLine = line.split()
+                name = thisLine[0]
+                name = name[:-1]
+                if name in thisFile:
+                    fileSpecName = 'File: ' + name 
+                    time = thisLine[1]
+                    fileSpecTime = 'Time: ' + time[:-1]
+                    P = thisLine[2]
+                    fileSpecP = 'P: ' + P[2:-1]
+                    E = thisLine[5] + thisLine[6]
+                    fileSpecE = 'E: ' + E[:-1]
+                    g = thisLine[7]
+                    fileSpecG = 'g: ' + g[:-1]
+                    c = thisLine[8]
+                    fileSpecC = 'c: ' + c[2:-1]
+                    temp = thisLine[9]
+                    fileSpecTemp = 'Temp: ' + temp
+            counter = counter + 1 ## increase count by 1 to move to next line
+
+    ## check if a match was found between the inFile and the labbook
+    ## if yes, update the name to matching format and assign the data from the matched row as the return data
+    if name != 'null':
+        fileSpecName = fileSpecName  
+        fileSpecs.append(fileSpecName)
+        fileSpecs.append(fileSpecTime)
+        fileSpecs.append(fileSpecP)
+        fileSpecs.append(fileSpecE)
+        fileSpecs.append(fileSpecG)
+        fileSpecs.append(fileSpecC)
+        fileSpecs.append(fileSpecTemp)
+    ## if no, provide message to inform user
+    else:
+        fileSpecName = ' No File Specs Found'
+        fileSpecs.append(fileSpecName)
+
+    ## close the data file and return the results
+    dataFile.close() 
+    return fileSpecs
 
 if __name__ == '__main__':
     fp = 'data/raman_01.txt'
