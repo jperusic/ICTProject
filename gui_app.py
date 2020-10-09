@@ -4,9 +4,27 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from ui_design.main import Ui_Form
 from functools import partial
 import os
-from data_process import read_normalised_data
+from data_process import read_normalised_data, parse_lab_book, process, export_data
 
 app_name = 'cRaman System'
+
+
+# class ProcessService(QtCore.QThread):
+#     sig_result = QtCore.pyqtSignal(str, list)
+#
+#     def __init__(self, parent):
+#         super().__init__(parent)
+#
+#         self.task = []
+#
+#     def reload(self, fp, sh):
+#         self.task = [fp, sh]
+#
+#     def run(self) -> None:
+#         num = len(self.tasks)
+#         fp, sh = self.task
+#         r = process(fp=fp, shiftInput=sh)
+#         self.sig_result.emit(fp, r)
 
 
 class MainApp(QtWidgets.QWidget, Ui_Form):
@@ -17,12 +35,13 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
         self.setWindowTitle(app_name)  # window title
         self.label_header.setText(app_name)
 
-        self.data_files_to_plot = []  # store a list of normalised files those imported by user manually
-        self.data_files = []
+        self.data_files_normalised = []  # store a list of normalised files
+        self.data_files_raw = []  # store a list of raw files
+        self.data_lab_book = {}  # data label book
+
         # Create a new variable storage file path and data
-        self.data_current_raw_file: str = None
+        self.data_current_normalised_file: str = None
         self.data_param: int = None
-        self.data_normalised_file: str = None
 
         self.init_table_raw_files()
         self.init_table_results()
@@ -33,18 +52,13 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
         self.btn_clear.clicked.connect(self.handle_clear_raw_files)
         self.tab_widget_main.currentChanged.connect(self.handle_switch_between_tabs)
 
-        # Bind the function to edit the cell of the file list
-        self.edit_param.textChanged.connect(self.handle_user_edit_param)
-        self.edit_param.setValidator(QtGui.QIntValidator())
-
-        self.combo_raw.currentIndexChanged.connect(self.handle_user_choose_raw_file)
+        self.combo_raw.currentIndexChanged.connect(self.handle_user_choose_view_normalised_file)
         self.combo_result.currentIndexChanged.connect(self.handle_user_choose_normalised_file)
-        self.btn_normalise.clicked.connect(self.handle_normalise_raw_file)
         self.btn_plot.clicked.connect(self.handle_handle_plot)
         self.setMinimumSize(1024, 600)
 
         self.combo_typo.clear()
-        self.combo_typo.addItems(['Line', 'Scatter'])
+        self.combo_typo.addItems(['Scatter', 'Line'])
         self.btn_inf.clicked.connect(self.handle_user_add_normalised)
 
         self.tab_widget_main.setStyleSheet('''
@@ -58,14 +72,13 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
              font: 12pt "Courier New";
             }
             QTabBar::tab:first {
-                background-color: red; 
+                background-color: gray; 
             }
             QTabBar::tab:middle {
-                background-color: blue; 
+                background-color: gray; 
             }
             QTabBar::tab:last {
-                background-color: yellow; 
-                color: gray;
+                background-color: gray; 
             }
             /*
             QTabBar::tab:first:selected {
@@ -89,59 +102,54 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
             border-radius: 10px;
             }
             '''
-            )
+        )
         self.btn_clear.setStyleSheet('background-color: #E80505;'
                                      'color: white;'
-                                      'min-width: 120px;'
-                                      'min-height: 40px;'
-                                      'border-radius: 10px;')
+                                     'min-width: 120px;'
+                                     'min-height: 40px;'
+                                     'border-radius: 10px;')
 
         self.btn_inc.setStyleSheet('background-color: #E80505;'
-                                     'color: white;'
-                                      'min-width: 120px;'
-                                      'min-height: 40px;'
-                                      'border-radius: 10px;')
+                                   'color: white;'
+                                   'min-width: 100px;'
+                                   'min-height: 40px;'
+                                   'border-radius: 10px;')
 
-        self.btn_normalise.setStyleSheet('''
+        self.btn_labbook.setStyleSheet('''
             QPushButton{
-            background-color: #123597;
+            background-color: blue;
             min-width: 120px;
             min-height: 40px;
             border-radius: 10px;
+            color: white;
             }
             ''')
 
         self.btn_inf.setStyleSheet('''
                     QPushButton{
-                    background-color: yellow;
+                    background-color: #F8D800;
                     min-width: 120px;
                     min-height: 40px;
                     border-radius: 10px;
-                    color: gray;
                     }
                     ''')
-        self.btn_normalise.setStyleSheet('''
-            QPushButton{
-            background-color: #F8D800;
-            min-width: 120px;
-            min-height: 40px;
-            border-radius: 10px;
-            }
-            ''')
+
         self.btn_plot.setStyleSheet('''
                     QPushButton{
                     background-color: #BB4E75;
                     min-width: 120px;
-                    min-height: 40px;
+                    min-height: 20px;
                     border-radius: 10px;
                     }
                     ''')
 
         self.btn_inc.clicked.connect(self.init_table_nf)
+        self.btn_labbook.clicked.connect(self.handle_import_lab_book)
+        self.btn_p_plot.clicked.connect(self.handle_plot_btn_click_in_normalised_tab)
 
     def init_table_nf(self):
         """Initialize normalised file list table"""
-        table_headers = ['Normalised File Path']
+        table_headers = ['Normalised File Path', 'View Data', 'Plot Data']
         self.table_nf.clear()  # clear the list
         self.table_nf.setRowCount(0)  # Initial 0 lines
         self.table_nf.setColumnCount(len(table_headers))  # Three columns show file status
@@ -153,7 +161,7 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
 
     def init_table_raw_files(self):
         """Initialize raw file list table"""
-        table_headers = ['File Name', 'File Path']
+        table_headers = ['File Name', 'File Path', 'Wave Shift', 'Operation']
         self.table_files.clear()  # clear the list
         self.table_files.setRowCount(0)  # Initial 0 lines
         self.table_files.setColumnCount(len(table_headers))  # Three columns show file status
@@ -184,7 +192,7 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
         # Open file and get file list(ls)
         ls, _ext = QtWidgets.QFileDialog.getOpenFileNames(
             parent=self, caption='Import Raw Data Files', directory='.', filter='Txt Data Files(*.txt)'
-            )
+        )
         #  Open the txt file in the current path
         #  Determine whether to choose
         if not ls:
@@ -199,14 +207,14 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
             #  Insert the row in the table
             self.table_files.insertRow(r)
             #  Insert list by line number [path, Param, results]
-            self.data_files.insert(r,
-                                   [os.path.abspath(fp), None, None, None])
-            #                 raw file path || shift || normalised content || output file path
+            self.data_files_raw.insert(r,
+                                       os.path.abspath(fp))
+            #                 raw file path
 
             item = QtWidgets.QTableWidgetItem()
             item.setText(os.path.split(fp)[1])  # slice the path to get the file name and set
             item.setStatusTip(fp)  # mouse over to display the file path
-            item.setFlags(item.flags() | QtCore.Qt.ItemIsEnabled)  # is enabled
+            item.setFlags(QtCore.Qt.ItemIsEnabled)  # is enabled
             self.table_files.setItem(r, 0, item)
             #  Set the item in the specified row and first column as a QTableWidgetItem instance object
             item = QtWidgets.QTableWidgetItem()  # center aligned offsets
@@ -214,9 +222,19 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
             item.setTextAlignment(QtCore.Qt.AlignLeft)
             item.setStatusTip(fp)
             #  can only edit, nothing else
-            item.setFlags(item.flags() | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsEditable)
+            item.setFlags(QtCore.Qt.ItemIsEnabled)
             #  Set the second column
             self.table_files.setItem(r, 1, item)
+
+            item = QtWidgets.QTableWidgetItem()
+            item.setData(QtCore.Qt.EditRole, 3)
+            self.table_files.setItem(r, 2, item)
+
+            btn = QtWidgets.QPushButton()
+            btn.setText('Normalise')
+            self.table_files.setCellWidget(r, 3, btn)
+            btn.clicked.connect(partial(self.handle_normalise_raw_file, r))
+
         # Turn off signal blocking
         self.table_files.blockSignals(False)
 
@@ -299,7 +317,7 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
     def handle_clear_raw_files(self):
         """"""
         self.init_table_raw_files()
-        self.data_files = []
+        self.data_files_raw = []
 
     def handle_switch_between_tabs(self, index: int):
         """Switch between different TABs"""
@@ -312,13 +330,32 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
 
     def get_files_to_plot(self):
         """Gather normalised files for plot"""
-        normalised_files = [out for fp, shift, data, out in self.data_files if out]
+        normalised_files = []
 
         if self.data_files_to_plot:
             normalised_files.extend(self.data_files_to_plot)
-        normalised_files = list(set(normalised_files))
-        normalised_files.sort()
+        # normalised_files = list(set(normalised_files))
+        # normalised_files.sort()
         return normalised_files
+
+    def add_one_row_to_table_nf(self, fp):
+        """add one file to table normalised file"""
+        r = self.table_nf.rowCount()
+        self.table_nf.insertRow(r)
+
+        self.data_files_to_plot.append(fp)
+
+        item = QtWidgets.QTableWidgetItem(fp)
+        item.setFlags(QtCore.Qt.ItemIsEnabled)
+        self.table_nf.setItem(r, 0, item)
+
+        btn_view = QtWidgets.QPushButton('View Data')
+        self.table_nf.setCellWidget(r, 1, btn_view)
+        btn_view.clicked.connect(partial(self.switch_and_view_data, r))
+
+        btn_plot = QtWidgets.QPushButton('Plot Data')
+        self.table_nf.setCellWidget(r, 2, btn_plot)
+        btn_plot.clicked.connect(partial(self.switch_and_plot_data, r))
 
     def handle_switch_to_tab_plot(self):
         """Handle Events when switched to tab Plot"""
@@ -328,98 +365,116 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
         self.combo_result.clear()
         self.graphics_view.plot_clear()
         if not normalised_files:
-            self.data_normalised_file = None
+            self.data_current_normalised_file = None
         else:
             self.combo_result.addItems(normalised_files)
-            self.data_normalised_file = normalised_files[0]
-
         self.combo_result.blockSignals(False)
+
+        if self.data_current_normalised_file in normalised_files:
+            self.combo_result.setCurrentIndex(normalised_files.index(self.data_current_normalised_file))
 
     def handle_switch_to_tab_normalise(self):
         """Handle Events when switched to tab Normalise"""
-        files = [fp for fp, shift, data, out in self.data_files]
+        files = self.get_files_to_plot()
+
         self.combo_raw.blockSignals(True)
 
         if not files:
             self.combo_raw.clear()
-            self.data_current_raw_file = None
+            self.data_current_normalised_file = None
             self.init_table_results()
 
         else:
-            if self.data_current_raw_file in files:
-                index = files.index(self.data_current_raw_file)
-                raw_file, shift, data, output_file = self.data_files[index]
+            if self.data_current_normalised_file in files:
+                index = files.index(self.data_current_normalised_file)
 
                 self.combo_raw.clear()
                 self.combo_raw.addItems(files)
                 self.combo_raw.setCurrentIndex(index)
 
-                if isinstance(data, list) and data:
-                    self.init_table_results(col=len(data[0]))
-                    self.fill_table_results(data=data)
-
-                else:
-                    self.init_table_results()
-
             else:
-                self.data_current_raw_file = files[0]
+                index = 0
+                self.data_current_normalised_file = files[0]
                 self.combo_raw.clear()
                 self.combo_raw.addItems(files)
                 self.init_table_results()
 
+            self.handle_user_choose_view_normalised_file(index)
+
         self.combo_raw.blockSignals(False)
 
-    def handle_user_choose_raw_file(self, index: int):
+    def handle_user_choose_view_normalised_file(self, index: int):
         """The drop - down box selects a file"""
         if index < 0:
-            return
-        self.data_current_raw_file = self.combo_raw.currentText()
-
-        fp, shift, data, out = self.data_files[index]
-
-        if isinstance(shift, int):
-            self.edit_param.setText(str(shift))
-
-        print(self.data_current_raw_file, data)
-        if data:
-            self.init_table_results(col=len(data[0]))
-            self.fill_table_results(data=data)
-        else:
+            self.data_current_normalised_file = None
             self.init_table_results()
+        else:
+            self.data_current_normalised_file = self.combo_raw.currentText()
+
+            data = read_normalised_data(fp=self.data_current_normalised_file)
+
+            if data:
+                self.init_table_results(col=len(data[0]))
+                self.fill_table_results(data=data)
+            else:
+                self.init_table_results()
+        self.handle_update_display_of_lab_book()
+
+    def handle_update_display_of_lab_book(self):
+        """Display Lab book in Tab Normalised"""
+        data = {}
+        if not self.data_current_normalised_file:
+            pass
+        else:
+            _, fn = os.path.split(self.data_current_normalised_file)
+            name, _ = os.path.splitext(fn)
+            if name.endswith('_normalised'):
+                name = name[:-11]
+                print(name)
+            data = self.data_lab_book.get(name, {})
+        if not data:
+            self.edit_p_name.setText('')
+            self.edit_p_time.setText('')
+            self.edit_p_p.setText('')
+            self.edit_p_e.setText('')
+            self.edit_p_g.setText('')
+            self.edit_p_c.setText('')
+            self.edit_p_temp.setText('')
+        else:
+            self.edit_p_name.setText(data['name'])
+            self.edit_p_time.setText(data['time'])
+            self.edit_p_p.setText(data['p'])
+            self.edit_p_e.setText(data['e'])
+            self.edit_p_g.setText(data['g'])
+            self.edit_p_c.setText(data['c'])
+            self.edit_p_temp.setText(data['temp'])
+
+        # print(data)
 
     def handle_user_choose_normalised_file(self, index):
         """The drop - down box selects a file"""
         if index < 0:
             return
-        self.data_normalised_file = self.combo_result.currentText()
+        self.data_current_normalised_file = self.combo_result.currentText()
 
         self.graphics_view.plot_clear()
 
-    def handle_user_edit_param(self, value):
-        """User Edit the offset used to shift wavelength"""
-        try:
-            v = int(float(value))
-        except ValueError:
-            v = None
+    # def handle_user_edit_param(self, value):
+    #     """User Edit the offset used to shift wavelength"""
+    #     try:
+    #         v = int(float(value))
+    #     except ValueError:
+    #         v = None
+    #
+    #     self.data_param = v
+    #     print('the offset used to shift wavelength is', v)
 
-        self.data_param = v
-        print('the offset used to shift wavelength is', v)
-
-    def handle_normalise_raw_file(self):
+    def handle_normalise_raw_file(self, r: int):
         """Handle Normalise a raw file and update ui"""
-        ls = []
-        if not self.data_current_raw_file:
-            ls.append('Please choose a raw data file')
-        if not isinstance(self.data_param, int):
-            ls.append('Please input the offset used to shift wavelength in "Wave Shift"')
-        if ls:
-            return self.show_warning_message(message=f'Unable to normalise: <br><ul><li>{"</li><li>".join(ls)}</li></ul>')
-
-        the_raw_file = self.data_current_raw_file
-        the_raw_file_index = [fp for fp, *_ in self.data_files].index(the_raw_file)
-        shift = self.data_param
-
-        from data_process import process, export_data
+        print(self.data_files_raw)
+        the_raw_file = self.data_files_raw[r]
+        the_raw_file_index = r
+        shift = int(self.table_files.item(r, 2).text())
 
         # example
         # in file: D:\some-path\001.txt
@@ -436,37 +491,17 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
         out_file = os.path.abspath(os.path.join(out_dir, fn))
         export_data(data=results, output_path=out_file)
 
-        self.data_files[the_raw_file_index][1] = self.data_param
-        self.data_files[the_raw_file_index][2] = results
-        self.data_files[the_raw_file_index][3] = out_file
-
-        if results:
-            self.init_table_results(col=len(results[0]))
-            self.fill_table_results(data=results)
-        else:
-            self.init_table_results()
+        if out_file not in self.data_files_to_plot:
+            self.add_one_row_to_table_nf(fp=out_file)
 
     def handle_handle_plot(self):
         """The processing user clicks plot"""
-
-        # normalised_results = [data for fp, shift, data, out in self.data_files if out]
-        # normalised_files = [out for fp, shift, data, out in self.data_files if out]
-        #
-        # if self.data_normalised_file in normalised_files:
-        #     index = normalised_files.index(self.data_normalised_file)
-        #     data = normalised_results[index]
-        #
-        #     self.graphics_view.plot_data(data=data,
-        #                                  title=f'Plot of Normalised {os.path.split(self.data_normalised_file)[1]}')
-        # else:
-        #     self.graphics_view.plot_clear()
-        #     return self.show_warning_message(message='Please choose a normalised file')
 
         ct = self.combo_typo.currentText()
         cf = self.combo_result.currentText()
         print(
             f'Type: {ct}; File: {cf}'
-            )
+        )
         if cf:
             data = read_normalised_data(cf)
             self.graphics_view.plot_data(data=data,
@@ -478,33 +513,61 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
 
     def handle_user_add_normalised(self):
         """Process the data that the user imported already processed"""
-        ls, _ext = QtWidgets.QFileDialog.getOpenFileNames(parent=self, caption='Import Normalised Data Files', directory='.',
-            filter='Txt Data Files(*.txt)')
+        ls, _ext = QtWidgets.QFileDialog.getOpenFileNames(parent=self, caption='Import Normalised Data Files',
+                                                          directory='.',
+                                                          filter='Txt Data Files(*.txt)')
         if not ls:
             return
-
+        new = 0
+        old = 0
+        invalid = 0
         normalised_files = self.get_files_to_plot()
         for i in ls:
             p = os.path.abspath(i)
             if p in normalised_files:  # please do not repeat
+                old += 1
                 continue
 
             fn = os.path.split(p)[1]
             if '_normalised.txt' not in fn.lower():  # a normalised file should be end with "_normalised.txt"
+                invalid += 1
                 continue
 
-            self.data_files_to_plot.append(p)
+            self.add_one_row_to_table_nf(fp=p)
+            new += 1
+        self.show_info_message(message=f'New {new}<br>Repeat {old}<br>Invalid {invalid}', parent=self, only_yes=True)
 
-            item = QtWidgets.QTableWidgetItem()
-            item.setText(p)
-            item.setFlags(QtCore.Qt.ItemIsEnabled)
-            row_no = self.table_nf.rowCount()
-            self.table_nf.insertRow(row_no)
-            self.table_nf.setItem(row_no, 0, item)
+    def handle_import_lab_book(self):
+        """Import Lab Book"""
+        fp, _ext = QtWidgets.QFileDialog.getOpenFileName(parent=self, caption='Import Lab Book',
+                                                         directory='.', filter='Txt Data Files(*.txt)')
+        if not fp:
+            return
+
+        self.data_lab_book = parse_lab_book(fp=fp)
+        return self.show_info_message(message='Lab Book Imported', parent=self, )
+
+    def switch_and_view_data(self, index):
+        """Switch to Tab Normalised Data and apply exact chosen file"""
+        self.data_current_normalised_file = self.data_files_to_plot[index]
+        self.tab_widget_main.setCurrentIndex(1)
+
+    def switch_and_plot_data(self, index):
+        """Switch to Tab Plot Data and view apply chosen file"""
+        self.data_current_normalised_file = self.data_files_to_plot[index]
+        self.tab_widget_main.setCurrentIndex(2)
+
+    def handle_plot_btn_click_in_normalised_tab(self):
+        """"""
+        index = self.combo_raw.currentIndex()
+        if index < 0:
+            return
+        self.switch_and_plot_data(index)
 
 
 if __name__ == '__main__':
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     m = MainApp()
     m.show()

@@ -60,6 +60,13 @@ font: 16pt &quot;Courier&quot;;
                    </spacer>
                   </item>
                   <item>
+                   <widget class="QPushButton" name="btn_labbook">
+                    <property name="text">
+                     <string>Import LabBook</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
                    <widget class="QPushButton" name="btn_import">
                     <property name="text">
                      <string>Import Raw</string>
@@ -159,13 +166,13 @@ font: 16pt &quot;Courier&quot;;
        </widget>
        <widget class="QWidget" name="tab_normalise">
         <attribute name="title">
-         <string>Normalise Data</string>
+         <string>Normalised Data</string>
         </attribute>
-        <layout class="QGridLayout" name="gridLayout_3">
+        <layout class="QGridLayout" name="gridLayout_7">
          <item row="0" column="0">
-          <layout class="QVBoxLayout" name="verticalLayout_3">
+          <layout class="QVBoxLayout" name="verticalLayout_7">
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1,0,0,0">
+            <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1">
              <item>
               <widget class="QLabel" name="label_raw">
                <property name="text">
@@ -176,27 +183,112 @@ font: 16pt &quot;Courier&quot;;
              <item>
               <widget class="QComboBox" name="combo_raw"/>
              </item>
-             <item>
-              <widget class="QLabel" name="label_param">
-               <property name="text">
-                <string>Wave Shift</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="edit_param"/>
-             </item>
-             <item>
-              <widget class="QPushButton" name="btn_normalise">
-               <property name="text">
-                <string>Normalise</string>
-               </property>
-              </widget>
-             </item>
             </layout>
            </item>
            <item>
-            <widget class="QTableWidget" name="table_results"/>
+            <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,0">
+             <item>
+              <widget class="QTableWidget" name="table_results"/>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_3">
+               <item>
+                <layout class="QGridLayout" name="gridLayout_3">
+                 <item row="3" column="1">
+                  <widget class="QLineEdit" name="edit_p_e"/>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QLineEdit" name="edit_p_g"/>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_p_name">
+                   <property name="text">
+                    <string>Name</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLineEdit" name="edit_p_time"/>
+                 </item>
+                 <item row="8" column="0" colspan="2">
+                  <widget class="QPushButton" name="btn_p_plot">
+                   <property name="text">
+                    <string>Plot</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="0">
+                  <widget class="QLabel" name="label_p_temp">
+                   <property name="text">
+                    <string>Temp</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QLineEdit" name="edit_p_p"/>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_p_time">
+                   <property name="text">
+                    <string>Time</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_p_p">
+                   <property name="text">
+                    <string>P:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <widget class="QLineEdit" name="edit_p_name"/>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="label_p__e">
+                   <property name="text">
+                    <string>E:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QLabel" name="label_p_g">
+                   <property name="text">
+                    <string>G:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QLabel" name="label_p_c">
+                   <property name="text">
+                    <string>C:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="1">
+                  <widget class="QLineEdit" name="edit_p_c"/>
+                 </item>
+                 <item row="6" column="1">
+                  <widget class="QLineEdit" name="edit_p_temp"/>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_3">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+            </layout>
            </item>
           </layout>
          </item>
