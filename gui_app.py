@@ -411,7 +411,7 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
         if not self.data_current_raw_file:
             ls.append('Please choose a raw data file')
         if not isinstance(self.data_param, int):
-            ls.append('Pleas input the offset used to shift wavelength in "Wave Shift"')
+            ls.append('Please input the offset used to shift wavelength in "Wave Shift"')
         if ls:
             return self.show_warning_message(message=f'Unable to normalise: <br><ul><li>{"</li><li>".join(ls)}</li></ul>')
 
