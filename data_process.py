@@ -240,6 +240,7 @@ def export_data(data: list, output_path: str):
             line = [str(i) for i in line]
             f.write('{}\n'.format(','.join(line)))
 
+
 def read_normalised_data(fp):
     """read data from a normalised file"""
     data = []
@@ -270,7 +271,7 @@ def display_specs():
     ## declare variables for function to allow for loop entry
     fileSpecs = []
     name = 'null'
-    counter=0
+    counter = 0
 
     ## while counter less than the number of lines in the labbook go through the lines in labbook
     ## if the line is deemed a reading entry, split the data at the spaces, strip the punctuation.
@@ -295,7 +296,7 @@ def display_specs():
                     fileSpecC = 'c: ' + c[2:-1]
                     temp = thisLine[9]
                     fileSpecTemp = 'Temp: ' + temp
-            counter = counter + 1 ## increase count by 1 to move to next line
+            counter = counter + 1  ## increase count by 1 to move to next line
 
     ## check if a match was found between the inFile and the labbook
     ## if yes, update the name to matching format and assign the data from the matched row as the return data
@@ -316,6 +317,33 @@ def display_specs():
     ## close the data file and return the results
     dataFile.close()
     return fileSpecs
+
+
+def parse_lab_book(fp):
+    data = {}
+    # todo: parse lab book data
+    with open(fp, 'r', encoding='ISO-8859-1') as f:  # This File encoded not in utf-8
+        for line in f:
+            if line.count(',') != 5:
+                continue
+            _, p, e, g, c, temp = line.split(',')
+            name, time = _.split(':')
+            name = name.strip()
+            time = time.strip()
+            _, p = p.split('=')
+            _, e = e.split('=')
+            _, c = c.split('=')
+            data[name] = {
+                'name': name,
+                'time': time,
+                'p': p.strip(),
+                'e': e.strip(),
+                'g': g.strip(),
+                'c': c.strip(),
+                'temp': temp.strip(),
+            }
+    return data
+
 
 if __name__ == '__main__':
     fp = 'data/raman_01.txt'
