@@ -19,7 +19,17 @@ font: 16pt &quot;Courier&quot;;
 }</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_header">
+     <property name="text">
+      <string>cRaman System</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QTabWidget" name="tab_widget_main">
@@ -60,13 +70,6 @@ font: 16pt &quot;Courier&quot;;
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QPushButton" name="btn_labbook">
-                    <property name="text">
-                     <string>Import LabBook</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
                    <widget class="QPushButton" name="btn_import">
                     <property name="text">
                      <string>Import Raw</string>
@@ -77,6 +80,20 @@ font: 16pt &quot;Courier&quot;;
                    <widget class="QPushButton" name="btn_clear">
                     <property name="text">
                      <string>Clear Raw</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btn_batch_shift">
+                    <property name="text">
+                     <string>Batch Set Shift</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="btn_batch_normalise">
+                    <property name="text">
+                     <string>Batch Normalise</string>
                     </property>
                    </widget>
                   </item>
@@ -176,7 +193,7 @@ font: 16pt &quot;Courier&quot;;
              <item>
               <widget class="QLabel" name="label_raw">
                <property name="text">
-                <string>Choose Raw File</string>
+                <string>Choose Data</string>
                </property>
               </widget>
              </item>
@@ -306,7 +323,7 @@ font: 16pt &quot;Courier&quot;;
              <item>
               <widget class="QLabel" name="label_result">
                <property name="text">
-                <string>Choose Normalised Data</string>
+                <string>Choose Data</string>
                </property>
               </widget>
              </item>
@@ -336,15 +353,26 @@ font: 16pt &quot;Courier&quot;;
      </item>
     </layout>
    </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label_header">
-     <property name="text">
-      <string>cRaman System</string>
+   <item row="3" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="0,1">
+     <property name="leftMargin">
+      <number>20</number>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
+     <item>
+      <widget class="QPushButton" name="btn_labbook">
+       <property name="text">
+        <string>Import Labbook</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_labbook">
+       <property name="text">
+        <string>Labbook: ---</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>
