@@ -9,22 +9,21 @@ from data_process import read_normalised_data, parse_lab_book, process, export_d
 app_name = 'cRaman System'
 
 
-# class ProcessService(QtCore.QThread):
-#     sig_result = QtCore.pyqtSignal(str, list)
-#
-#     def __init__(self, parent):
-#         super().__init__(parent)
-#
-#         self.task = []
-#
-#     def reload(self, fp, sh):
-#         self.task = [fp, sh]
-#
-#     def run(self) -> None:
-#         num = len(self.tasks)
-#         fp, sh = self.task
-#         r = process(fp=fp, shiftInput=sh)
-#         self.sig_result.emit(fp, r)
+class ProcessService(QtCore.QThread):
+    sig_result = QtCore.pyqtSignal(str, list)
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.tasks = []
+
+    def reload(self, tasks):
+        self.tasks = tasks
+
+    def run(self) -> None:
+        num = len(self.tasks)
+        for fp, sh in self.tasks:
+            r = process(fp=fp, shiftInput=sh)
+            self.sig_result.emit(fp, r)
 
 
 class MainApp(QtWidgets.QWidget, Ui_Form):
@@ -43,12 +42,14 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
         self.data_current_normalised_file: str = None
         self.data_param: int = None
 
+        self.data_batch_shift: int = 3
+
         self.init_table_raw_files()
         self.init_table_results()
         self.init_table_nf()
 
         # A click event that binds the import
-        self.btn_import.clicked.connect(self.handle_select_and_import_files)
+        self.btn_import.clicked.connect(self.handle_select_and_import_raw_files)
         self.btn_clear.clicked.connect(self.handle_clear_raw_files)
         self.tab_widget_main.currentChanged.connect(self.handle_switch_between_tabs)
 
@@ -62,7 +63,7 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
         self.btn_inf.clicked.connect(self.handle_user_add_normalised)
 
         self.tab_widget_main.setStyleSheet('''
-            QTabBar::tab:selected { font: 75 14pt "Courier New";}
+            QTabBar::tab:selected {font: 75 14pt "Courier New";color: black;}
             QTabBar::tab{
              width: 300px;
              height: 30px;
@@ -142,20 +143,57 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
                     border-radius: 10px;
                     }
                     ''')
+        self.combo_typo.setStyleSheet('''
+                    background-color: #BB4E75;
+                    min-width: 100px;
+                    min-height: 20px;
+                    border-radius: 10px;
+        ''')
+        self.btn_p_plot.setStyleSheet('''
+                    QPushButton{
+                    background-color: #BB4E75;
+                    min-width: 120px;
+                    min-height: 20px;
+                    border-radius: 10px;
+                    }
+                    ''')
+        self.btn_batch_shift.setStyleSheet('''
+            QPushButton{
+            background-color: #B210FF;
+            min-width: 120px;
+            min-height: 40px;
+            border-radius: 10px;
+            color: white;
+            }
+        ''')
+        self.btn_batch_normalise.setStyleSheet('''
+                    QPushButton{
+                    background-color: #28C76F;
+                    min-width: 120px;
+                    min-height: 40px;
+                    border-radius: 10px;
+                    color: white;
+                    }
+                ''')
 
         self.btn_inc.clicked.connect(self.init_table_nf)
         self.btn_labbook.clicked.connect(self.handle_import_lab_book)
         self.btn_p_plot.clicked.connect(self.handle_plot_btn_click_in_normalised_tab)
+        self.btn_batch_shift.clicked.connect(self.handle_batch_set_shift)
+        self.btn_batch_normalise.clicked.connect(partial(self.gather_tasks_and_process, None))
+
+        self.batch_service = ProcessService(self)
+        self.batch_service.sig_result.connect(self.handle_receive_result)
 
     def init_table_nf(self):
         """Initialize normalised file list table"""
-        table_headers = ['Normalised File Path', 'View Data', 'Plot Data']
+        table_headers = ['File Name', 'Normalised File Path', 'View Data', 'Plot Data']
         self.table_nf.clear()  # clear the list
         self.table_nf.setRowCount(0)  # Initial 0 lines
         self.table_nf.setColumnCount(len(table_headers))  # Three columns show file status
         #  Set the text displayed in the horizontal header in order
         self.table_nf.setHorizontalHeaderLabels(table_headers)
-        self.table_nf.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        self.table_nf.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
 
         self.data_files_to_plot = []  # clear normalised files those imported by user manually
 
@@ -187,7 +225,7 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
             self.table_results.setColumnCount(2)
             self.table_results.setHorizontalHeaderLabels(['Wavelength', 'Spectra'])
 
-    def handle_select_and_import_files(self):
+    def handle_select_and_import_raw_files(self):
         """Process user selection and import txt files"""
         # Open file and get file list(ls)
         ls, _ext = QtWidgets.QFileDialog.getOpenFileNames(
@@ -208,7 +246,7 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
             self.table_files.insertRow(r)
             #  Insert list by line number [path, Param, results]
             self.data_files_raw.insert(r,
-                                       os.path.abspath(fp))
+                                   os.path.abspath(fp))
             #                 raw file path
 
             item = QtWidgets.QTableWidgetItem()
@@ -227,13 +265,13 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
             self.table_files.setItem(r, 1, item)
 
             item = QtWidgets.QTableWidgetItem()
-            item.setData(QtCore.Qt.EditRole, 3)
+            item.setData(QtCore.Qt.EditRole, self.data_batch_shift)
             self.table_files.setItem(r, 2, item)
 
             btn = QtWidgets.QPushButton()
             btn.setText('Normalise')
             self.table_files.setCellWidget(r, 3, btn)
-            btn.clicked.connect(partial(self.handle_normalise_raw_file, r))
+            btn.clicked.connect(partial(self.gather_tasks_and_process, r))
 
         # Turn off signal blocking
         self.table_files.blockSignals(False)
@@ -252,7 +290,7 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
 
     @classmethod
     def show_warning_message(cls, message: str, title: str = 'Warning', detail: str = None, extra: str = None,
-                             parent=None, only_yes: bool = False):
+                             parent=None, only_yes: bool = True):
         '''Display warning message'''
         msg_box = QtWidgets.QMessageBox(parent=parent)
         msg_box.setIcon(QtWidgets.QMessageBox.Warning)
@@ -284,7 +322,7 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
 
     @classmethod
     def show_info_message(cls, message: str, title='Information', detail: str = None, extra: str = None, parent=None,
-                          only_yes: bool = False):
+                          only_yes: bool = True):
         '''Display reminder information'''
         msg_box = QtWidgets.QMessageBox(parent=parent)
         msg_box.setIcon(QtWidgets.QMessageBox.Information)
@@ -345,16 +383,20 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
 
         self.data_files_to_plot.append(fp)
 
-        item = QtWidgets.QTableWidgetItem(fp)
+        item = QtWidgets.QTableWidgetItem(os.path.split(fp)[1])
         item.setFlags(QtCore.Qt.ItemIsEnabled)
         self.table_nf.setItem(r, 0, item)
 
+        item = QtWidgets.QTableWidgetItem(fp)
+        item.setFlags(QtCore.Qt.ItemIsEnabled)
+        self.table_nf.setItem(r, 1, item)
+
         btn_view = QtWidgets.QPushButton('View Data')
-        self.table_nf.setCellWidget(r, 1, btn_view)
+        self.table_nf.setCellWidget(r, 2, btn_view)
         btn_view.clicked.connect(partial(self.switch_and_view_data, r))
 
         btn_plot = QtWidgets.QPushButton('Plot Data')
-        self.table_nf.setCellWidget(r, 2, btn_plot)
+        self.table_nf.setCellWidget(r, 3, btn_plot)
         btn_plot.clicked.connect(partial(self.switch_and_plot_data, r))
 
     def handle_switch_to_tab_plot(self):
@@ -459,15 +501,14 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
 
         self.graphics_view.plot_clear()
 
-    # def handle_user_edit_param(self, value):
-    #     """User Edit the offset used to shift wavelength"""
-    #     try:
-    #         v = int(float(value))
-    #     except ValueError:
-    #         v = None
-    #
-    #     self.data_param = v
-    #     print('the offset used to shift wavelength is', v)
+    def handle_batch_set_shift(self):
+        """Batch set shift wavelength"""
+        intNum, ok = QtWidgets.QInputDialog.getInt(self, "Setup waveShift for all", "WaveShift:", self.data_batch_shift, 1, 100, 1)
+        if ok:
+            self.data_batch_shift = intNum
+            for r in range(self.table_files.rowCount()):
+                item = self.table_files.item(r, 2)
+                item.setText(str(intNum))
 
     def handle_normalise_raw_file(self, r: int):
         """Handle Normalise a raw file and update ui"""
@@ -535,16 +576,17 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
 
             self.add_one_row_to_table_nf(fp=p)
             new += 1
-        self.show_info_message(message=f'New {new}<br>Repeat {old}<br>Invalid {invalid}', parent=self, only_yes=True)
+        self.show_info_message(message=f'<h1>Import Report</h1>Success {new}<br>Repeat {old}<br>Invalid {invalid}', parent=self, only_yes=True)
 
     def handle_import_lab_book(self):
         """Import Lab Book"""
         fp, _ext = QtWidgets.QFileDialog.getOpenFileName(parent=self, caption='Import Lab Book',
-                                                         directory='.', filter='Txt Data Files(*.txt)')
+                                                          directory='.', filter='Txt Data Files(*.txt)')
         if not fp:
             return
 
         self.data_lab_book = parse_lab_book(fp=fp)
+        self.label_labbook.setText(f'Labbook: {os.path.split(fp)[1]}')
         return self.show_info_message(message='Lab Book Imported', parent=self, )
 
     def switch_and_view_data(self, index):
@@ -556,6 +598,7 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
         """Switch to Tab Plot Data and view apply chosen file"""
         self.data_current_normalised_file = self.data_files_to_plot[index]
         self.tab_widget_main.setCurrentIndex(2)
+        self.handle_handle_plot()
 
     def handle_plot_btn_click_in_normalised_tab(self):
         """"""
@@ -563,6 +606,42 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
         if index < 0:
             return
         self.switch_and_plot_data(index)
+        self.handle_handle_plot()
+
+    def handle_receive_result(self, fp: str, data: list):
+        """"""
+        the_raw_file = fp
+        results = data
+        fd, fn = os.path.split(the_raw_file)
+        out_dir = os.path.join(fd, 'normalised')
+        a, b = os.path.splitext(fn)
+        fn = f'{a}_normalised{b}'
+        if not os.path.exists(out_dir):
+            os.makedirs(out_dir, exist_ok=True)
+        out_file = os.path.abspath(os.path.join(out_dir, fn))
+        export_data(data=results, output_path=out_file)
+
+        if out_file not in self.data_files_to_plot:
+            self.add_one_row_to_table_nf(fp=out_file)
+
+    def gather_tasks_and_process(self, index: int = None):
+        if self.batch_service.isRunning():
+            return self.show_warning_message(message='A Job is Running, Please Try Again Later.', parent=self, title='A Job is Running')
+        if isinstance(index, int):
+            the_raw_file = self.data_files_raw[index]
+            shift = int(self.table_files.item(index, 2).text())
+            tasks = [(the_raw_file, shift), ]
+        else:
+            tasks = []
+            for r in range(self.table_files.rowCount()):
+                the_raw_file = self.data_files_raw[r]
+                shift = int(self.table_files.item(r, 2).text())
+                tasks.append((the_raw_file, shift))
+        if not tasks:
+            return self.show_warning_message(message='There are no jobs. Please import some raw files.', parent=self)
+        self.batch_service.reload(tasks)
+        self.batch_service.start()
+        self.show_info_message(message='Please Wait. Processing is running in the background.', parent=self)
 
 
 if __name__ == '__main__':
