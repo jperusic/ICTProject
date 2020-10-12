@@ -2,22 +2,18 @@
 
 import os.path
 
-
 def process(fp, shiftInput: (int, float) = 1) -> list:
     """
     :param fp: abs path of the data file
     :param shiftInput: shift value, accept float/int
     :return: list of normalised data
     """
-
     results = []  ## holds function result
     inFile = open(fp, "r")  ## open file target
-    data = [line for line in inFile.readlines() if
-            line.strip()]  ## imported file titled data and stripped of blank lines
+    data = [line for line in inFile.readlines() if line.strip()]  ## imported file titled data and stripped of blank lines
     inFile.close()  ## close the in file
 
     ## Declaration of variables used in the process
-    waves = []  ## Holds the wavelength name values
     waveList = []  ## Holds the values of waves with duplicate values removed
     finalWaves = []  ## Holds shifted wavelength name values
 
@@ -38,29 +34,16 @@ def process(fp, shiftInput: (int, float) = 1) -> list:
 
     counter = 0  ## Holds value used to determine the number of unique wavelength names
     occurance = 0  ## Holds value used to determine the number of frames in the file
-    frames = 0  ## Holds value used to store number of frames from the file
-
-    ## ** DEBUGGING TOOLS **
-    debug = 0
-    totalToBug = (len(data))
 
     ## For each line of the imported file that dont begin with F (to remove Frame rows)
-    ## Split line to identify wavelength (first value in row) add to a waveList and remove duplicate values
+    ## Split line to identify wavelength (first value in row) add to a waveList if not already present
     while counter < len(data):
         for line in data:
             if not line.startswith("F"):
                 thisLine = line.split()
-                waves.append(thisLine[0])
-                waveList = list(dict.fromkeys(waves))
-                ## ** DEBUG TOOLS **
-            ## print system progress to user in percent via terminal
-            debug = debug + 1
-            print("PROCESS 1 / 4: ", round((debug / totalToBug) * 100), "% ", debug, "/", totalToBug)
+                if thisLine[0] not in waveList:
+                    waveList.append(thisLine[0])
             counter = counter + 1  ## increase count by 1 to move to next row
-
-    ## ** RESET DEBUG TOOLS **
-    debug = 0
-    totalToBug = (len(waveList))
 
     ## For each line of the imported file split line into wavelength, spectra values
     ## Compare the current row wave to the waveList wave to allocate spectra
@@ -94,32 +77,19 @@ def process(fp, shiftInput: (int, float) = 1) -> list:
                 spectra2Average = round(spectra2Total / occurance, 1)
                 spectra2List.append(spectra2Average)
 
-            ## If there is a third spectra value found
-            if spectra3Total > 0:
-                spectra3Total = int(sum(spectra3))
-                spectra3Average = round(spectra3Total / occurance, 1)
-                spectra3List.append(spectra3Average)
+                ## If there is a third spectra value found
+                if spectra3Total > 0:
+                    spectra3Total = int(sum(spectra3))
+                    spectra3Average = round(spectra3Total / occurance, 1)
+                    spectra3List.append(spectra3Average)
 
         ## Empty the lists used to hold found values so they can be used for the next value
         spectra1 = []
         spectra2 = []
         spectra3 = []
 
-        ## If the frames haven't been recorded yet, take the occurance value and move to frames
-        if frames == 0:
-            frames = occurance
         occurance = 0  ## Reverts occurance count to zero
-
-        ## ** DEBUG TOOLS **
-        ## print system progress to user in percent via terminal
-        debug = debug + 1
-        print("PROCESS 2 / 4: ", round((debug / totalToBug) * 100), "% ", debug, "/", totalToBug)
-
         counter = counter + 1  ## Increase counter by one to search for the next wavelength
-
-    ## ** RESET DEBUG TOOLS **
-    debug = 0
-    totalToBug = (len(waveList))
 
     ## While the counter is less than the length of the waveList go through the rows in waveList
     counter = 0
@@ -131,16 +101,7 @@ def process(fp, shiftInput: (int, float) = 1) -> list:
             shiftedWave = round(shiftedWave, 2)
             finalWaves.append(shiftedWave)
 
-            ## ** DEBUG TOOLS **
-            ## print system progress to user in percent via terminal
-            debug = debug + 1
-            print("PROCESS 3 / 4: ", round((debug / totalToBug) * 100), "% ", debug, "/", totalToBug)
-
             counter = counter + 1  ## Increase counter by one to search for the next wavelength
-
-    ## ** RESET DEBUG TOOLS **
-    debug = 0
-    totalToBug = (len(waveList))
 
     ## Reset the counter value to 0
     ## While the counter is less than the length of spectra1List - if empty is 0 and = counter
@@ -154,16 +115,7 @@ def process(fp, shiftInput: (int, float) = 1) -> list:
                 normalisedSpectra = round(spectra1List[counter], 1)
                 finalSpectra1.append(normalisedSpectra)
 
-                ## ** DEBUG TOOLS **
-                ## print system progress to user in percent via terminal
-                debug = debug + 1
-                print("PROCESS 4 / 4: ", round((debug / totalToBug) * 100), "% ", debug, "/", totalToBug)
-
                 counter = counter + 1  ## Increase the counter by 1 to move to the next spectra value
-
-    ## ** RESET DEBUG TOOLS **
-    debug = 0
-    totalToBug = (len(waveList))
 
     ## While the counter is less than the length of spectra2List - if empty is 0 and = counter
     ## For each line in spectra2List
@@ -176,16 +128,7 @@ def process(fp, shiftInput: (int, float) = 1) -> list:
                 normalisedSpectra = round(spectra2List[counter], 1)
                 finalSpectra2.append(normalisedSpectra)
 
-                ## ** DEBUG TOOLS **
-                ## print system progress to user in percent via terminal
-                debug = debug + 1
-                print("PROCESSING EXTRA SPECTRA: ", round((debug / totalToBug) * 100, 1), "% ", debug, "/", totalToBug)
-
                 counter = counter + 1  ## Increase the counter by 1 to move to the next spectra value
-
-    ## ** RESET DEBUG TOOLS **
-    debug = 0
-    totalToBug = (len(waveList))
 
     ## While the counter is less than the length of spectra3List - if empty is 0 and = counter
     ## For each line in spectra3List
@@ -198,16 +141,7 @@ def process(fp, shiftInput: (int, float) = 1) -> list:
                 normalisedSpectra = round(spectra3List[counter], 1)
                 finalSpectra3.append(normalisedSpectra)
 
-                ## ** DEBUG TOOLS **
-                ## print system progress to user in percent via terminal
-                debug = debug + 1
-                print("PROCESSING EXTRA SPECTRA: ", round((debug / totalToBug) * 100, 1), "% ", debug, "/", totalToBug)
-
                 counter = counter + 1  ## Increase the counter by 1 to move to the next spectra value
-
-    ## ** DEBUG TOOLS **
-    ## print system status to user via terminal
-    print("MAPPING DATA")
 
     # ------------------------------------------------- #
     if finalSpectra1 != [] and finalSpectra2 == []:
@@ -346,6 +280,11 @@ def parse_lab_book(fp):
 
 
 if __name__ == '__main__':
+    import timeit
     fp = 'data/raman_01.txt'
     r = process(fp, 100.0)
     print(r)
+    print(timeit.timeit(process, number=100000))
+
+
+
