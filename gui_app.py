@@ -2,15 +2,40 @@
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 from ui_design.main import Ui_Form
+from ui_design.waiter import Ui_Form as WaiterDialogForm
 from functools import partial
 import os
 from data_process import read_normalised_data, parse_lab_book, process, export_data
 
 app_name = 'cRaman System'
+wave_shift_min = 0
+wave_shift_max = 100000
+wave_shift_decimals = 3  # 3.12345 (decimals = 5)
+wave_shift_default = 3.0
+
+
+class WaiterDialog(QtWidgets.QDialog, WaiterDialogForm):
+    def __init__(self, parent):
+        super().__init__(parent=parent, flags=QtCore.Qt.FramelessWindowHint)
+        self.setupUi(self)
+
+    def clear_shell(self):
+        """clear shell messages"""
+        self.textBrowser.clear()
+
+    def update_shell(self, msg: str):
+        """Update running shell"""
+        self.textBrowser.append(msg)
+
+    def keyPressEvent(self, event):
+        if not event.key() == QtCore.Qt.Key_Escape:  # Esc key is bypassed
+            super(self.__class__, self).keyPressEvent(event)
 
 
 class ProcessService(QtCore.QThread):
     sig_result = QtCore.pyqtSignal(str, list)
+    sig_msg = QtCore.pyqtSignal(str)
+    sig_finished = QtCore.pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -21,9 +46,15 @@ class ProcessService(QtCore.QThread):
 
     def run(self) -> None:
         num = len(self.tasks)
-        for fp, sh in self.tasks:
-            r = process(fp=fp, shiftInput=sh)
-            self.sig_result.emit(fp, r)
+        for n, (fp, sh) in enumerate(self.tasks):
+            try:
+                self.sig_msg.emit(f'<p><span style="color: blue;">[{n+1}/{num}]</span>, Normalising <b>{fp}</b></p>')
+                r = process(fp=fp, shiftInput=sh)
+                self.sig_result.emit(fp, r)
+                self.sig_msg.emit(f'<p><span style="color: blue;">[{n + 1}/{num}]</span>, <span style="color: green;">[SUCCEEDED]</span> to normalise {fp}</p>')
+            except:
+                self.sig_msg.emit(f'<p><span style="color: blue;">[{n + 1}/{num}]</span>, <span style="color: red;">[FAILED]</span> to normalise {fp}</p>')
+        self.sig_finished.emit()
 
 
 class MainApp(QtWidgets.QWidget, Ui_Form):
@@ -42,7 +73,7 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
         self.data_current_normalised_file: str = None
         self.data_param: int = None
 
-        self.data_batch_shift: int = 3
+        self.data_batch_shift: (int, float) = wave_shift_default
 
         self.init_table_raw_files()
         self.init_table_results()
@@ -81,17 +112,19 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
             QTabBar::tab:last {
                 background-color: gray; 
             }
-            /*
+            
             QTabBar::tab:first:selected {
-                width: 220px;
+                background-color: white;
             }
             QTabBar::tab:middle:selected {
-                width: 220px;
+                background-color: white;
+
             }
             QTabBar::tab:last:selected {
-                width: 220px;
+                background-color: white;
+
             }
-            */
+            
         ''')
 
         self.btn_import.setStyleSheet(
@@ -182,8 +215,11 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
         self.btn_batch_shift.clicked.connect(self.handle_batch_set_shift)
         self.btn_batch_normalise.clicked.connect(partial(self.gather_tasks_and_process, None))
 
+        self.popup = WaiterDialog(self)
         self.batch_service = ProcessService(self)
         self.batch_service.sig_result.connect(self.handle_receive_result)
+        self.batch_service.sig_msg.connect(self.popup.update_shell)
+        self.batch_service.sig_finished.connect(self.handle_task_finished)
 
     def init_table_nf(self):
         """Initialize normalised file list table"""
@@ -264,9 +300,12 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
             #  Set the second column
             self.table_files.setItem(r, 1, item)
 
-            item = QtWidgets.QTableWidgetItem()
-            item.setData(QtCore.Qt.EditRole, self.data_batch_shift)
-            self.table_files.setItem(r, 2, item)
+            spin = QtWidgets.QDoubleSpinBox()
+            spin.setDecimals(wave_shift_decimals)
+            spin.setValue(wave_shift_default)
+            spin.setMaximum(wave_shift_max)
+            spin.setMinimum(wave_shift_min)
+            self.table_files.setCellWidget(r, 2, spin)
 
             btn = QtWidgets.QPushButton()
             btn.setText('Normalise')
@@ -303,11 +342,11 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
         if only_yes is True:
             msg_box.setStandardButtons(QtWidgets.QMessageBox.Yes)
             btn_yes = msg_box.button(QtWidgets.QMessageBox.Yes)
-            btn_yes.setText('Yes')
+            btn_yes.setText('Ok')
         else:
             msg_box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
             btn_yes = msg_box.button(QtWidgets.QMessageBox.Yes)
-            btn_yes.setText('Yes')
+            btn_yes.setText('Ok')
             btn_no = msg_box.button(QtWidgets.QMessageBox.No)
             btn_no.setText('No')
 
@@ -335,11 +374,11 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
         if only_yes is True:
             msg_box.setStandardButtons(QtWidgets.QMessageBox.Yes)
             btn_yes = msg_box.button(QtWidgets.QMessageBox.Yes)
-            btn_yes.setText('Yes')
+            btn_yes.setText('Ok')
         else:
             msg_box.setStandardButtons(QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
             btn_yes = msg_box.button(QtWidgets.QMessageBox.Yes)
-            btn_yes.setText('Yes')
+            btn_yes.setText('Ok')
             btn_no = msg_box.button(QtWidgets.QMessageBox.No)
             btn_no.setText('No')
 
@@ -503,37 +542,37 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
 
     def handle_batch_set_shift(self):
         """Batch set shift wavelength"""
-        intNum, ok = QtWidgets.QInputDialog.getInt(self, "Setup waveShift for all", "WaveShift:", self.data_batch_shift, 1, 100, 1)
+        intNum, ok = QtWidgets.QInputDialog.getDouble(self, "Setup waveShift for all", "WaveShift:", self.data_batch_shift, wave_shift_min, wave_shift_max, wave_shift_decimals)
         if ok:
             self.data_batch_shift = intNum
             for r in range(self.table_files.rowCount()):
-                item = self.table_files.item(r, 2)
-                item.setText(str(intNum))
+                spin = self.table_files.cellWidget(r, 2)
+                spin.setValue(intNum)
 
-    def handle_normalise_raw_file(self, r: int):
-        """Handle Normalise a raw file and update ui"""
-        print(self.data_files_raw)
-        the_raw_file = self.data_files_raw[r]
-        the_raw_file_index = r
-        shift = int(self.table_files.item(r, 2).text())
-
-        # example
-        # in file: D:\some-path\001.txt
-        # output file or normalised file: D:\some-path\normalised\001_normalised.txt
-
-        results = process(fp=the_raw_file, shiftInput=shift)
-
-        fd, fn = os.path.split(the_raw_file)
-        out_dir = os.path.join(fd, 'normalised')
-        a, b = os.path.splitext(fn)
-        fn = f'{a}_normalised{b}'
-        if not os.path.exists(out_dir):
-            os.makedirs(out_dir, exist_ok=True)
-        out_file = os.path.abspath(os.path.join(out_dir, fn))
-        export_data(data=results, output_path=out_file)
-
-        if out_file not in self.data_files_to_plot:
-            self.add_one_row_to_table_nf(fp=out_file)
+    # def handle_normalise_raw_file(self, r: int):
+    #     """Handle Normalise a raw file and update ui"""
+    #     print(self.data_files_raw)
+    #     the_raw_file = self.data_files_raw[r]
+    #     the_raw_file_index = r
+    #     shift = int(self.table_files.item(r, 2).text())
+    #
+    #     # example
+    #     # in file: D:\some-path\001.txt
+    #     # output file or normalised file: D:\some-path\normalised\001_normalised.txt
+    #
+    #     results = process(fp=the_raw_file, shiftInput=shift)
+    #
+    #     fd, fn = os.path.split(the_raw_file)
+    #     out_dir = os.path.join(fd, 'normalised')
+    #     a, b = os.path.splitext(fn)
+    #     fn = f'{a}_normalised{b}'
+    #     if not os.path.exists(out_dir):
+    #         os.makedirs(out_dir, exist_ok=True)
+    #     out_file = os.path.abspath(os.path.join(out_dir, fn))
+    #     export_data(data=results, output_path=out_file)
+    #
+    #     if out_file not in self.data_files_to_plot:
+    #         self.add_one_row_to_table_nf(fp=out_file)
 
     def handle_handle_plot(self):
         """The processing user clicks plot"""
@@ -584,10 +623,12 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
                                                           directory='.', filter='Txt Data Files(*.txt)')
         if not fp:
             return
-
-        self.data_lab_book = parse_lab_book(fp=fp)
-        self.label_labbook.setText(f'Labbook: {os.path.split(fp)[1]}')
-        return self.show_info_message(message='Lab Book Imported', parent=self, )
+        try:
+            self.data_lab_book = parse_lab_book(fp=fp)
+            self.label_labbook.setText(f'Labbook: {os.path.split(fp)[1]}')
+            return self.show_info_message(message='Lab Book Imported', parent=self, )
+        except:
+            return self.show_warning_message(message='Parsing Lab Book Failed', parent=self, )
 
     def switch_and_view_data(self, index):
         """Switch to Tab Normalised Data and apply exact chosen file"""
@@ -629,19 +670,28 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
             return self.show_warning_message(message='A Job is Running, Please Try Again Later.', parent=self, title='A Job is Running')
         if isinstance(index, int):
             the_raw_file = self.data_files_raw[index]
-            shift = int(self.table_files.item(index, 2).text())
+            shift = self.table_files.cellWidget(index, 2).value()  # int(self.table_files.item(index, 2).text())
             tasks = [(the_raw_file, shift), ]
         else:
             tasks = []
             for r in range(self.table_files.rowCount()):
                 the_raw_file = self.data_files_raw[r]
-                shift = int(self.table_files.item(r, 2).text())
+                shift = self.table_files.cellWidget(r, 2).value()  # int(self.table_files.item(index, 2).text())
                 tasks.append((the_raw_file, shift))
         if not tasks:
             return self.show_warning_message(message='There are no jobs. Please import some raw files.', parent=self)
+        print(tasks)
         self.batch_service.reload(tasks)
         self.batch_service.start()
-        self.show_info_message(message='Please Wait. Processing is running in the background.', parent=self)
+        # self.show_info_message(message='Please Wait. Processing is running in the background.', parent=self)
+        self.popup.clear_shell()
+        self.popup.setFixedSize(self.size())
+        self.popup.move(self.pos())
+        self.popup.exec_()  # show a non-frame popup to block user from operating
+
+    def handle_task_finished(self):
+        """hide popup to allow user to operate"""
+        self.popup.accept()
 
 
 if __name__ == '__main__':
