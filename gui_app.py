@@ -10,8 +10,8 @@ from data_process import read_normalised_data, parse_lab_book, process, export_d
 app_name = 'cRaman System'
 wave_shift_min = 0
 wave_shift_max = 100000
-wave_shift_decimals = 3  # 3.12345 (decimals = 5)
-wave_shift_default = 3.0
+wave_shift_decimals = 5  # 3.12345 (decimals = 5)
+wave_shift_default = 0.0
 
 
 class WaiterDialog(QtWidgets.QDialog, WaiterDialogForm):
@@ -586,7 +586,7 @@ class MainApp(QtWidgets.QWidget, Ui_Form):
             data = read_normalised_data(cf)
             self.graphics_view.plot_data(data=data,
                                          typo=ct.lower(),
-                                         title=f'Plot of Normalised {os.path.split(cf)[1]}')
+                                         title=f'Plot of {os.path.split(cf)[1]}')
         else:
             self.graphics_view.plot_clear()
             return self.show_warning_message(message='Please choose a normalised file')
