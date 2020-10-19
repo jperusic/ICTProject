@@ -5,11 +5,15 @@ Written by Jarrad Perusic, Jordan Winter & Liuyu Zhao.
 This project is a python-written program that will allow the importing of spectroscopy data, so that it can be normalised, 
 viewed, plotted on a graph, and then exported for future plotting.
 
+
+
 ## Installation
 This program has been created to be portable for ease of use. After you have downloaded and unzipped this folder, this location 
 will now become your root directory. You will now be able to double-click the .exe file in the directory to begin the program.
 
 We recommend that you add a shortcut to your Desktop or Start Menu to this .exe to make finding this program even easier.
+
+
 
 ## Files
 The root directory will contain the following files
@@ -17,6 +21,8 @@ The root directory will contain the following files
 - plot_tool.py
 - gui_app.py
 - README.md
+
+
 
 ## Importing Data Tab
 
@@ -55,11 +61,15 @@ The root directory will contain the following files
 ### Importing a Labbook
 - To import a Labbook, simply click the 'Import Labbook' button on the bottom left-hand corner of the interface.
 
+
+
 ## Normalised Data Tab
 
 ### Viewing Normalised Data
 - To view your normalised data, select the file you wish to view in the dropdown menu near the top of the Nomalised Data tab.
 - You should now see the data in the scrollable pane below
+
+
 
 ## Plot Data Tab
 - To plot your data after importing and normalising, simply head to the Plot Data tab.
@@ -67,11 +77,15 @@ The root directory will contain the following files
 - Once happy with your selection, you may also choose if you would like a scatter graph, or a line graph.
 - Hitting the 'Plot' button will now generate your graph below.
 
+
+
 ## Exporting
 - Your nomalised data files will be exported automatically after they have been run through the normalisation process. 
 - Check the same path location that the files were imported from. There should be a new folder called 'Normalised' where the normalised
 files will be stored. 
 - They will be named '{originalFileName}_normalised.txt'
+
+
 
 ## Contact the Developers
 If you have any issues or feedback you would like to relay to us, we can be reached at 
