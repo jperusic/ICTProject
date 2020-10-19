@@ -3,43 +3,75 @@
 Written by Jarrad Perusic, Jordan Winter & Liuyu Zhao.
 
 This project is a python-written program that will allow the importing of spectroscopy data, so that it can be normalised, 
-plotted on a graph, and then exported for future plotting.
+viewed, plotted on a graph, and then exported for future plotting.
 
-# Installation
+## Installation
 This program has been created to be portable for ease of use. After you have downloaded and unzipped this folder, this location 
 will now become your root directory. You will now be able to double-click the .exe file in the directory to begin the program.
 
 We recommend that you add a shortcut to your Desktop or Start Menu to this .exe to make finding this program even easier.
 
-# Files
+## Files
 The root directory will contain the following files
-- data.py
-- plot.py
-- README,md
+- data_process.py
+- plot_tool.py
+- gui_app.py
+- README.md
 
-# Paths
-Your root directory will be wherever the .exe file is located.
-You can choose your import path from within the program.
-Your exported normalised data files will be exported to 'root\Export'. They will be named '{originalFileName}_normalised.txt'
+## Importing Data Tab
 
-# Importing Files
-- To import a file, just select the 'Import' button in the program's GUI. From here you will see a window pop up. 
+### Importing Raw Files
+- To import a raw data file(s), just select the 'Import Raw' button on the right-hand side. From here you will see a window pop up. 
 - In this window, select one or more files that you would like to import (must be .txt format)
-- After you are happy that you have selected all the files that you need, now hit Import.
-- You should now see those select files sitting in the first pane of the program.
+- After you are happy that you have selected all the files that you need, now hit Open.
+- You should now see those select files sitting in the first pane of the program under the 'Raw' heading.
 
-# Normalising
-- To normalise the files that you just imported, select them by ticking the checkbox of each of them.
-- Now hit the Collate button.
-- You should see these files now in the second pane of the program, ready and waiting to be plotted.
+### Importing Already Normalised Files
+- Just like the raw files, you will select the 'Import Normalised' button on the right-hand side of the first tab.
+- Select the files you wish to open in the popup window.
+- Once you are happy with the selection, hit 'Open'.
+- You should now see these files in the second pane, under the 'Normalised' heading.
 
-# Plotting
-- To plot these normalised files, select which one you would like to plot, and hit the Plot button
-- When you are done with viewing this graph, you can select another and repeat the process
+### Setting the Wave Shift
+- To set the Wave Shift of your newly imported Raw Files, you have two options:
+  #### Individually
+  - You may choose individual shift values for each raw file by setting this in the Wave Shift column in the Raw pane.
+  #### Batch Set
+  - If you would like to set a single value across all your raw files, you may select the 'Batch Set Shift' button on the right-hand
+  side of the interface, and enter in the value.
+  - Once you have entered in this value, hit the 'OK' button to set this.
+  
+### Clearing Files
+- To clear files in either pane, simply click their respective 'Clear' button on the right-hand side of the interface.
 
-# Exporting
+### Normalising
+- To normalise the files that you just imported, you have two options:
+  #### Individually
+  - You may choose individual files to normalise by hitting their corresponding 'Normalise' button in the Raw pane.
+  #### Batch Normalise
+  - If you would like to normalise all Raw files at once, simply click the 'Batch Normalise' button on the right-hand side of 
+  the interface
+
+### Importing a Labbook
+- To import a Labbook, simply click the 'Import Labbook' button on the bottom left-hand corner of the interface.
+
+## Normalised Data Tab
+
+### Viewing Normalised Data
+- To view your normalised data, select the file you wish to view in the dropdown menu near the top of the Nomalised Data tab.
+- You should now see the data in the scrollable pane below
+
+## Plot Data Tab
+- To plot your data after importing and normalising, simply head to the Plot Data tab.
+- From here you can choose which file you would like to plot in the drop-down menu.
+- Once happy with your selection, you may also choose if you would like a scatter graph, or a line graph.
+- Hitting the 'Plot' button will now generate your graph below.
+
+## Exporting
 - Your nomalised data files will be exported automatically after they have been run through the normalisation process. 
-Check the 'root\Export' path to find them. They will be named '{originalFileName}_normalised.txt'
+- Check the same path location that the files were imported from. There should be a new folder called 'Normalised' where the normalised
+files will be stored. 
+- They will be named '{originalFileName}_normalised.txt'
 
-# Contact the Developers
+## Contact the Developers
 If you have any issues or feedback you would like to relay to us, we can be reached at 
