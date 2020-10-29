@@ -8,19 +8,26 @@ viewed, plotted on a graph, and then exported for future plotting.
 
 
 ## Installation
-This program has been created to be portable for ease of use. After you have downloaded and unzipped this folder, this location 
-will now become your root directory. You will now be able to double-click the .exe file in the directory to begin the program.
+This program has been created to be portable for ease of use. After you have downloaded the 'cRaman Installer', run it and
+this will install to your chosen location. Included in the directory is a 'cRaman System Shortcut' file. Move this file to your
+Desktop. You will now be able to double-click this shortcut file to begin the program.
 
-We recommend that you add a shortcut to your Desktop or Start Menu to this .exe to make finding this program even easier.
+You will need python installed on your machine to be able to run this software. This can be downloaded from: 
+https://www.python.org/downloads/
+
+If the program does not run or is missing some stuff, you may need to install the packages listed in the 'Required Packages.txt'.
+Simply paste each single line in that .txt file into a Command Line and hit enter, allowing the packages to install.
 
 
 
 ## Files
 The root directory will contain the following files
+- cRaman System Shortcut
 - data_process.py
-- plot_tool.py
 - gui_app.py
+- plot_tool.py
 - README.md
+- Required Packages.txt
 
 
 
