@@ -169,9 +169,9 @@ def export_data(data: list, output_path: str):
 ## Function to read normalised data directly from a normalised file - allows for already normalised files to be supported and displayed within the system
 def read_normalised_data(fp):
     """read data from a normalised file"""
-    data = []
-    with open(fp, 'r', encoding='utf-8') as f:
-        for line in f:
+    data = []  # create an empty container
+    with open(fp, 'r', encoding='utf-8') as f:  # open a file handle using "with"
+        for line in f:  # each line/row
             if not line:
                 continue
             _ = line.split(',')
